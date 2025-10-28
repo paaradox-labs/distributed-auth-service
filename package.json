@@ -4,9 +4,13 @@
   "description": "user management service",
   "main": "index.js",
   "scripts": {
-    "dev": "node src/server.js",
+    "dev": "npx tsc && node dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mr. Paradox avyas8927@gmail.com",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "typescript": "^5.9.3"
+  }
 }
