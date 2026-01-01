@@ -13,7 +13,7 @@ export default defineConfig(
     {
         rules: {
             // "no-console": "error",
-            // "dot-notation": "error",
+            "dot-notation": "error",
             "@typescript-eslint/require-await": "off",
             "@typescript-eslint/no-unsafe-assignment": "off",
         },
