@@ -8,14 +8,12 @@ export default defineConfig(
     eslint.configs.recommended,
     tseslint.configs.recommended,
     {
-        ignores: ["dist", "node_modules", "eslint.config.mjs"],
+        ignores: ["dist", "node_modules", "eslint.config.mjs", "package-lock.json"],
     },
     {
         rules: {
             // "no-console": "error",
-            "dot-notation": "error",
-            "@typescript-eslint/require-await": "off",
-            "@typescript-eslint/no-unsafe-assignment": "off",
+            // "dot-notation": "error",
         },
     },
 );
