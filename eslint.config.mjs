@@ -11,12 +11,6 @@ export default defineConfig(
         ignores: ["dist", "node_modules", "eslint.config.mjs"],
     },  
     {
-        languageOptions: {
-        parseOptions: {
-            projectService: true,
-            tsconfigRootDir: import.meta.dirname,
-        },
-        },
         rules: {
             // "no-console": "error",
             // "dot-notation": "error",

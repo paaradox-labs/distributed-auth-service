@@ -7,6 +7,8 @@
         "dev": "npx tsc && node dist/server.js",
         "format:fix": "prettier . --write",
         "format:check": "prettier . --check",
+        "lint:check": "eslint .",
+        "lint:fix": "eslint . --fix",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "Mr. Paradox avyas8927@gmail.com",
