@@ -9,7 +9,7 @@ export default defineConfig(
     tseslint.configs.recommended,
     {
         ignores: ["dist", "node_modules", "eslint.config.mjs"],
-    },  
+    },
     {
         rules: {
             // "no-console": "error",
