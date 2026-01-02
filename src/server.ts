@@ -1,5 +1,1 @@
-function welcome(name: string) {
-    console.log(`Welcome ${name}`);
-}
-
-welcome("John Doe");
+console.log(process.env.PORT);
