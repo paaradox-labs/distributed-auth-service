@@ -8,7 +8,12 @@ export default defineConfig(
     eslint.configs.recommended,
     tseslint.configs.recommended,
     {
-        ignores: ["dist", "node_modules", "eslint.config.mjs", "package-lock.json"],
+        ignores: [
+            "dist",
+            "node_modules",
+            "eslint.config.mjs",
+            "package-lock.json",
+        ],
     },
     {
         rules: {
