@@ -11,7 +11,7 @@ const startServer = () => {
             }
         });
     } catch (error) {
-        console.log(`Error: ${error}`);
+        logger.error("Error starting server", { error });
         process.exit(1);
     }
 };
