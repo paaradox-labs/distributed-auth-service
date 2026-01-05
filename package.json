@@ -6,6 +6,7 @@
     "type": "module",
     "scripts": {
         "dev": "nodemon",
+        "docker": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=production auth-service:dev",
         "format:fix": "prettier . --write",
         "format:check": "prettier . --check",
         "lint:check": "eslint .",
