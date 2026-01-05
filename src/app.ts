@@ -5,14 +5,15 @@ import express, {
 } from "express";
 import logger from "./config/logger.js";
 import type { HttpError } from "http-errors";
-import createHttpError from "http-errors";
+// import createHttpError from "http-errors";
 
 const app = express();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.get("/", async (req, res, next) => {
-    const error = createHttpError(401, "This route is not accessible");
-    next(error);
-    // res.send("Welcome to Auth Service");
+    // const error = createHttpError(401, "This route is not accessible");
+    // next(error);
+    res.status(200).send("Welcome to Auth Service");
 });
 
 //global error handler
