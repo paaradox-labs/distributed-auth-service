@@ -5,6 +5,7 @@ import express, {
 } from "express";
 import logger from "./config/logger.js";
 import type { HttpError } from "http-errors";
+import authRouter from "./routes/auth.js";
 
 const app = express();
 
@@ -12,10 +13,7 @@ app.get("/", async (req, res) => {
     res.status(200).send("Welcome to Authentication Page");
 });
 
-app.post("/auth/register", (req, res) => {
-    res.status(201);
-    res.send();
-});
+app.use("/auth", authRouter);
 
 //global error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

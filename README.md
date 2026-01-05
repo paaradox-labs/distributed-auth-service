@@ -40,22 +40,26 @@ This authentication service is designed as part of a microservices architecture 
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/mrpaaradox/auth-service
 cd auth-service
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Configure your `.env` file:
+
 ```env
 PORT=5501
 NODE_ENV=development
@@ -74,11 +78,13 @@ The server will start on the port specified in your `.env` file (default: 5501).
 ### Using Docker
 
 Build the Docker image:
+
 ```bash
 docker build -t auth-service:dev -f docker/dev/Dockerfile .
 ```
 
 Run the container:
+
 ```bash
 npm run docker
 ```
@@ -86,21 +92,22 @@ npm run docker
 ## 🧪 Testing
 
 Run tests in watch mode:
+
 ```bash
 npm test
 ```
 
 ## 📝 Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run docker` | Run application in Docker container |
-| `npm test` | Run tests in watch mode |
-| `npm run lint:check` | Check for linting errors |
-| `npm run lint:fix` | Fix linting errors automatically |
-| `npm run format:check` | Check code formatting |
-| `npm run format:fix` | Format code automatically |
+| Script                 | Description                              |
+| ---------------------- | ---------------------------------------- |
+| `npm run dev`          | Start development server with hot reload |
+| `npm run docker`       | Run application in Docker container      |
+| `npm test`             | Run tests in watch mode                  |
+| `npm run lint:check`   | Check for linting errors                 |
+| `npm run lint:fix`     | Fix linting errors automatically         |
+| `npm run format:check` | Check code formatting                    |
+| `npm run format:fix`   | Format code automatically                |
 
 ## 📁 Project Structure
 
@@ -132,6 +139,7 @@ auth-service/
 ### TypeScript
 
 The project uses strict TypeScript configuration with:
+
 - ES modules (`"module": "nodenext"`)
 - Strict type checking
 - Source maps for debugging
@@ -155,6 +163,7 @@ GET /
 Returns a welcome message to verify the service is running.
 
 **Response:**
+
 ```
 Welcome to Authentication Page
 ```
@@ -162,17 +171,20 @@ Welcome to Authentication Page
 ## 📊 Logging
 
 The service uses Winston for logging with the following features:
+
 - Separate log files for errors and combined logs
 - Structured logging format
 - Configurable log levels based on environment
 
 Logs are stored in the `logs/` directory:
+
 - `error.log`: Error-level logs
 - `combine.log`: All logs
 
 ## 🐳 Docker
 
 The service includes a Dockerfile for development:
+
 - Based on Node.js 24
 - Exposes port 5501
 - Supports volume mounting for hot reload
@@ -189,6 +201,7 @@ The service includes a Dockerfile for development:
 ### Code Style
 
 This project uses:
+
 - ESLint for linting
 - Prettier for formatting
 - Pre-commit hooks to ensure code quality
