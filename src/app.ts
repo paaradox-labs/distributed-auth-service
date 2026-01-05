@@ -13,7 +13,7 @@ const app = express();
 app.get("/", async (req, res, next) => {
     // const error = createHttpError(401, "This route is not accessible");
     // next(error);
-    res.status(200).send("Welcome to Auth Service");
+    res.status(200).send("Welcome to Authentication Page");
 });
 
 //global error handler
