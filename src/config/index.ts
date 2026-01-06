@@ -8,8 +8,8 @@ const { PORT, NODE_ENV, DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } =
     process.env;
 
 export const Config = {
-    PORT: PORT || "5501",
-    NODE_ENV: NODE_ENV || "development",
+    PORT: PORT,
+    NODE_ENV: NODE_ENV,
     DB_HOST: DB_HOST || "localhost",
     DB_PORT: DB_PORT || "5432",
     DB_USERNAME: DB_USERNAME || "root",
