@@ -5,14 +5,15 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "dev": "nodemon",
+        "dev": "cross-env NODE_ENV=dev nodemon",
         "docker": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=production auth-service:dev",
         "format:fix": "prettier . --write",
         "format:check": "prettier . --check",
         "lint:check": "eslint .",
         "lint:fix": "eslint . --fix",
         "test": "NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand",
-        "prepare": "husky"
+        "prepare": "husky",
+        "typeorm": "typeorm-ts-node-esm"
     },
     "author": "Mr. Paradox avyas8927@gmail.com",
     "license": "ISC",
@@ -24,6 +25,7 @@
         "@types/mocha": "^10.0.10",
         "@types/node": "^24.10.4",
         "@types/supertest": "^6.0.3",
+        "cross-env": "^10.1.0",
         "eslint": "^9.38.0",
         "husky": "^9.1.7",
         "jest": "^30.2.0",
@@ -32,6 +34,7 @@
         "prettier": "3.6.2",
         "ts-jest": "^29.4.6",
         "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.46.2"
