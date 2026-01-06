@@ -9,7 +9,7 @@
         "module": "nodenext",
         "target": "esnext",
         // For nodejs:
-        // "lib": ["esnext"],
+        "lib": ["ES6"],
         "types": ["node", "jest"],
         // and npm install -D @types/node
 
@@ -37,7 +37,10 @@
         "isolatedModules": true,
         "noUncheckedSideEffectImports": true,
         "moduleDetection": "force",
-        "skipLibCheck": true
+        "skipLibCheck": true,
+
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
     },
     "include": ["src/**/*", "**/*.spec.ts", "**/*.test.ts"],
     "exclude": ["node_modules", "dist"]
