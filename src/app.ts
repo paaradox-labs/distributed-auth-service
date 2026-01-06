@@ -1,10 +1,15 @@
+import "reflect-metadata";
+
 import express, {
     type NextFunction,
     type Request,
     type Response,
 } from "express";
+
 import logger from "./config/logger.js";
+
 import type { HttpError } from "http-errors";
+
 import authRouter from "./routes/auth.js";
 
 const app = express();
