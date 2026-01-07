@@ -49,10 +49,12 @@ describe("POST /auth/register", () => {
                 email: "avyas8927@gmail.com",
                 password: "secret",
             };
+
             // Act
             const response = await request(app)
                 .post("/auth/register")
                 .send(userData);
+
             // Assert application/json UTF-8
             expect(
                 (response.headers as Record<string, string>)["content-type"],
@@ -77,6 +79,23 @@ describe("POST /auth/register", () => {
             expect(users[0]?.firstName).toBe(userData.firstName);
             expect(users[0]?.lastName).toBe(userData.lastName);
             expect(users[0]?.email).toBe(userData.email);
+        });
+
+        it("should return an id of the created user", async () => {
+            // Arrange
+            const userData = {
+                firstName: "Aditya",
+                lastName: "Vyas",
+                email: "avyas8927@gmail.com",
+                password: "secret",
+            };
+            // Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(userData);
+
+            // Assert
+            expect(response.body).toHaveProperty("id");
         });
     });
     describe("Fields are missing", () => {});
