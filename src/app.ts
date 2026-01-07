@@ -13,6 +13,7 @@ import type { HttpError } from "http-errors";
 import authRouter from "./routes/auth.js";
 
 const app = express();
+app.use(express.json());
 
 app.get("/", async (req, res) => {
     res.status(200).send("Welcome to Authentication Page");
