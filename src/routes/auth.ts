@@ -3,13 +3,16 @@ import { AuthController } from "../controller/AuthController.js";
 import { UserService } from "../services/UserService.js";
 import { AppDataSource } from "../config/data-source.js";
 import { User } from "../entity/User.js";
+import logger from "../config/logger.js";
 
 const router = express.Router();
 
 const userRepository = AppDataSource.getRepository(User);
 const userService = new UserService(userRepository);
-const authController = new AuthController(userService);
+const authController = new AuthController(userService, logger);
 
-router.post("/register", (req, res) => authController.register(req, res));
+router.post("/register", (req, res, next) =>
+    authController.register(req, res, next),
+);
 
 export default router;
