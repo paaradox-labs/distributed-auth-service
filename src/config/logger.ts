@@ -14,6 +14,7 @@ const logger = winston.createLogger({
             format: winston.format.combine(
                 winston.format.timestamp(),
                 winston.format.json(),
+                winston.format.prettyPrint(),
             ),
             silent: Config.NODE_ENV === "test",
         }),
@@ -24,6 +25,7 @@ const logger = winston.createLogger({
             format: winston.format.combine(
                 winston.format.timestamp(),
                 winston.format.json(),
+                winston.format.prettyPrint(),
             ),
             silent: Config.NODE_ENV === "test",
         }),
@@ -32,6 +34,7 @@ const logger = winston.createLogger({
             format: winston.format.combine(
                 winston.format.timestamp(),
                 winston.format.json(),
+                winston.format.prettyPrint(),
             ),
             silent: Config.NODE_ENV === "test",
         }),
