@@ -98,5 +98,5 @@ describe("POST /auth/register", () => {
             expect(response.body).toHaveProperty("id");
         });
     });
-    // describe("Fields are missing", () => {});
+    describe("Fields are missing", () => {});
 });
