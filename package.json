@@ -7,7 +7,7 @@
     "scripts": {
         "dev": "cross-env NODE_ENV=dev nodemon",
         "docker:build": "docker build -t auth-service1:dev -f docker/dev/Dockerfile .",
-        "docker:run": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5502:5501 -e NODE_ENV=dev auth-service1:dev",
+        "docker:run": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=dev auth-service1:dev",
         "docker:db": "docker run --rm --name mernpg-container -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -v mernpgdata:/var/lib/postgresql -p 5432:5432 -d postgres",
         "format:fix": "prettier . --write",
         "format:check": "prettier . --check",

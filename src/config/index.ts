@@ -14,9 +14,9 @@ const { PORT, NODE_ENV, DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } =
 export const Config = {
     PORT: PORT,
     NODE_ENV: NODE_ENV,
-    DB_HOST: DB_HOST || "localhost",
-    DB_PORT: DB_PORT || "5432",
-    DB_USERNAME: DB_USERNAME || "root",
-    DB_PASSWORD: DB_PASSWORD || "root",
-    DB_NAME: DB_NAME || "auth_db",
+    DB_HOST: DB_HOST!,
+    DB_PORT: DB_PORT!,
+    DB_USERNAME: DB_USERNAME!,
+    DB_PASSWORD: DB_PASSWORD!,
+    DB_NAME: DB_NAME!,
 };
