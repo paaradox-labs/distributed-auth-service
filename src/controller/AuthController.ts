@@ -1,9 +1,18 @@
+import fs from "fs";
 import type { NextFunction, Response } from "express";
 import type { RegisterUserRequest } from "../types/index.js";
 import { UserService } from "../services/UserService.js";
 import type { Logger } from "winston";
 import { validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
+import type { JwtPayload } from "jsonwebtoken";
+import path from "path";
+import { dirname } from "path";
+import createHttpError from "http-errors";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 export class AuthController {
     constructor(
         private userService: UserService,
@@ -38,8 +47,51 @@ export class AuthController {
                 password,
             });
 
-            res.status(201).json(user);
             this.logger.info("User has been registered", { id: user.id });
+
+            let privateKey: Buffer;
+            try {
+                privateKey = fs.readFileSync(
+                    path.join(__dirname, "../../certs/private.pem"),
+                );
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (err) {
+                const error = createHttpError(
+                    500,
+                    "Error while reading private key",
+                );
+                next(error);
+                return;
+            }
+
+            const payload: JwtPayload = {
+                sub: String(user.id),
+                role: user.role,
+            };
+
+            const accessToken = jwt.sign(payload, privateKey, {
+                algorithm: "RS256",
+                expiresIn: "1h",
+                issuer: "auth-service",
+            });
+
+            const refreshToken = "sdveverfv";
+
+            res.cookie("accessToken", accessToken, {
+                domain: "localhost",
+                sameSite: "strict",
+                maxAge: 1000 * 60 * 60, // 1h
+                httpOnly: true, // Important
+            });
+
+            res.cookie("refreshToken", refreshToken, {
+                domain: "localhost",
+                sameSite: "strict",
+                maxAge: 1000 * 60 * 60 * 24 * 365, // 1h
+                httpOnly: true, // Important
+            });
+
+            res.status(201).json(user);
         } catch (error) {
             next(error);
             return;
