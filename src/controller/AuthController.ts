@@ -10,6 +10,7 @@ import path from "path";
 import { dirname } from "path";
 import createHttpError from "http-errors";
 import { fileURLToPath } from "url";
+import { Config } from "../config/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -75,7 +76,15 @@ export class AuthController {
                 issuer: "auth-service",
             });
 
-            const refreshToken = "sdveverfv";
+            const refreshToken = jwt.sign(
+                payload,
+                Config.REFRESH_TOKEN_SECRET!,
+                {
+                    algorithm: "HS256",
+                    expiresIn: "1y",
+                    issuer: "auth-service",
+                },
+            );
 
             res.cookie("accessToken", accessToken, {
                 domain: "localhost",
@@ -87,7 +96,7 @@ export class AuthController {
             res.cookie("refreshToken", refreshToken, {
                 domain: "localhost",
                 sameSite: "strict",
-                maxAge: 1000 * 60 * 60 * 24 * 365, // 1h
+                maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
                 httpOnly: true, // Important
             });
 

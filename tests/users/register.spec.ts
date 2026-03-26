@@ -181,7 +181,7 @@ describe("POST /auth/register", () => {
             }
             // Assert
             let accessToken = null;
-            // let refreshToken = null;
+            let refreshToken = null;
             const cookies =
                 (response.headers as unknown as Headers)["set-cookie"] || [];
 
@@ -189,17 +189,17 @@ describe("POST /auth/register", () => {
                 if (cookie.startsWith("accessToken=")) {
                     accessToken = cookie.split(";")[0]?.split("=")[1];
                 }
-                // if (cookie.startsWith("refreshToken=")) {
-                //     refreshToken = cookie.split(";")[0]?.split("=")[1];
-                // }
+                if (cookie.startsWith("refreshToken=")) {
+                    refreshToken = cookie.split(";")[0]?.split("=")[1];
+                }
             });
 
             expect(accessToken).not.toBeNull();
-            // expect(refreshToken).not.toBeNull();
+            expect(refreshToken).not.toBeNull();
 
             //format of tokens
             expect(isJWT(accessToken)).toBeTruthy();
-            // expect(isJWT(refreshToken)).toBeTruthy();
+            expect(isJWT(refreshToken)).toBeTruthy();
         });
     });
     describe("Fields are missing", () => {
