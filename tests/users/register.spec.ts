@@ -5,6 +5,7 @@ import { DataSource } from "typeorm";
 import { AppDataSource } from "../../src/config/data-source.js";
 import { Roles } from "../../src/constants/index.js";
 import { isJWT } from "../utils/index.js";
+import { RefreshToken } from "../../src/entity/RefreshTokens.js";
 
 describe("POST /auth/register", () => {
     let connection: DataSource;
@@ -200,6 +201,33 @@ describe("POST /auth/register", () => {
             //format of tokens
             expect(isJWT(accessToken)).toBeTruthy();
             expect(isJWT(refreshToken)).toBeTruthy();
+        });
+
+        it("should store the refresh token in the database", async () => {
+            // Arrange
+            const userData = {
+                firstName: "Aditya",
+                lastName: "Vyas",
+                email: "avyas8927@gmail.com",
+                password: "Aditya123",
+            };
+
+            // Act
+            const response = await request(app)
+                .post("/auth/register")
+                .send(userData);
+
+            // Assert
+            const refreshTokenRepo = connection.getRepository(RefreshToken);
+            // const refreshTokens = await refreshTokenRepo.find();
+
+            const tokens = await refreshTokenRepo
+                .createQueryBuilder("refreshToken")
+                .where("refreshToken.userId = :userId", {
+                    userId: (response.body as Record<string, string>).id,
+                })
+                .getMany();
+            expect(tokens).toHaveLength(1);
         });
     });
     describe("Fields are missing", () => {
