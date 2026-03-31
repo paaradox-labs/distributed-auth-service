@@ -6,36 +6,26 @@ const logger = winston.createLogger({
     defaultMeta: {
         ServiceName: "auth-service",
     },
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+        winston.format.prettyPrint(),
+    ),
     transports: [
         new winston.transports.File({
             level: "info",
             dirname: "logs",
             filename: "combine.log",
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-                winston.format.prettyPrint(),
-            ),
             silent: Config.NODE_ENV === "test",
         }),
         new winston.transports.File({
             level: "error",
             dirname: "logs",
             filename: "error.log",
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-                winston.format.prettyPrint(),
-            ),
             silent: Config.NODE_ENV === "test",
         }),
         new winston.transports.Console({
             level: "info",
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.json(),
-                winston.format.prettyPrint(),
-            ),
             silent: Config.NODE_ENV === "test",
         }),
     ],
