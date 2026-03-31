@@ -5,6 +5,7 @@ import { User } from "../../src/entity/User.js";
 import { Roles } from "../../src/constants/index.js";
 import request from "supertest";
 import app from "../../src/app.js";
+import { isJWT } from "../utils/index.js";
 
 describe("POST /auth/login", () => {
     let connection: DataSource;
@@ -70,9 +71,13 @@ describe("POST /auth/login", () => {
                     refreshToken = cookie.split(";")[0]?.split("=")[1];
                 }
             });
+            expect(response.statusCode).toBe(200);
 
             expect(accessToken).not.toBeNull();
             expect(refreshToken).not.toBeNull();
+
+            expect(isJWT(accessToken)).toBeTruthy();
+            expect(isJWT(refreshToken)).toBeTruthy();
         });
     });
 

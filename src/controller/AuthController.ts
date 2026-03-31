@@ -164,7 +164,7 @@ export class AuthController {
                 email: user.email,
             });
 
-            res.status(201).json(user);
+            res.status(200).json(user);
         } catch (error) {
             next(error);
             return;
