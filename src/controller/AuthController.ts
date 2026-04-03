@@ -1,4 +1,4 @@
-import type { NextFunction, Response } from "express";
+import type { Request, NextFunction, Response } from "express";
 import type { RegisterUserRequest } from "../types/index.js";
 import { UserService } from "../services/UserService.js";
 import type { Logger } from "winston";
@@ -169,5 +169,9 @@ export class AuthController {
             next(error);
             return;
         }
+    }
+
+    async self(req: Request, res: Response) {
+        res.json({});
     }
 }
