@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # Certs
 certs/
+
+# Public
+/public
