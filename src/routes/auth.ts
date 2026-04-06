@@ -15,6 +15,8 @@ import { RefreshToken } from "../entity/RefreshTokens.js";
 import registerValidator from "../validators/register-validator.js";
 import loginValidator from "../validators/login-validator.js";
 import { CredentialService } from "../services/CredentialService.js";
+import authenticate from "../middlewares/authenticate.js";
+import type { AuthRequest } from "../types/index.js";
 
 const router: ReturnType<typeof express.Router> = express.Router();
 
@@ -44,8 +46,8 @@ router.post(
         authController.login(req, res, next),
 );
 
-router.get("/self", (req: Request, res: Response) =>
-    authController.self(req, res),
+router.get("/self", authenticate, (req: Request, res: Response) =>
+    authController.self(req as AuthRequest, res),
 );
 
 export default router;
