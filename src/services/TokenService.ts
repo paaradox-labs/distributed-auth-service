@@ -55,4 +55,10 @@ export class Tokenservice {
         });
         return newRefreshToken;
     }
+
+    async deleteRefreshToken(tokenId: number) {
+        return this.refreshTokenRepostory.delete({
+            id: tokenId,
+        });
+    }
 }
