@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Tenant } from "./Tenant.js";
 
 @Entity({
     name: "users",
@@ -21,4 +22,7 @@ export class User {
 
     @Column({ type: "varchar", length: 255 })
     role: string;
+
+    @ManyToOne(() => Tenant)
+    tenant: Tenant;
 }
