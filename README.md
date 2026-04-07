@@ -15,6 +15,8 @@ This authentication service is designed as part of a microservices architecture 
 - **Token Rotation**: Automatic refresh token rotation on each refresh
 - **Cookie-based Auth**: httpOnly, sameSite: strict cookies for security
 - **JWKS Support**: Public JSON Web Key Set for token verification
+- **Logout Support**: Secure logout with refresh token deletion and cookie clearing
+- **Database Migrations**: TypeORM migrations for schema management
 - **Input Validation**: express-validator for request validation
 - **Password Hashing**: bcrypt for secure password storage
 - **Logging**: Comprehensive logging with Winston
@@ -134,18 +136,20 @@ pnpm test
 
 ## 📝 Scripts
 
-| Script                  | Description                              |
-| ----------------------- | ---------------------------------------- |
-| `pnpm run dev`          | Start development server with hot reload |
-| `pnpm run docker:build` | Build Docker image                       |
-| `pnpm run docker:run`   | Run application in Docker container      |
-| `pnpm run docker:db`    | Start PostgreSQL container               |
-| `pnpm test`             | Run tests in watch mode                  |
-| `pnpm run lint:check`   | Check for linting errors                 |
-| `pnpm run lint:fix`     | Fix linting errors automatically         |
-| `pnpm run format:check` | Check code formatting                    |
-| `pnpm run format:fix`   | Format code automatically                |
-| `pnpm run typeorm`      | Run TypeORM CLI commands                 |
+| Script                                | Description                              |
+| ------------------------------------- | ---------------------------------------- |
+| `pnpm run dev`                        | Start development server with hot reload |
+| `pnpm run docker:build`               | Build Docker image                       |
+| `pnpm run docker:run`                 | Run application in Docker container      |
+| `pnpm run docker:db`                  | Start PostgreSQL container               |
+| `pnpm test`                           | Run tests in watch mode                  |
+| `pnpm run lint:check`                 | Check for linting errors                 |
+| `pnpm run lint:fix`                   | Fix linting errors automatically         |
+| `pnpm run format:check`               | Check code formatting                    |
+| `pnpm run format:fix`                 | Format code automatically                |
+| `pnpm run typeorm`                    | Run TypeORM CLI commands                 |
+| `pnpm run typeorm migration:generate` | Generate a new migration                 |
+| `pnpm run typeorm migration:run`      | Run pending migrations                   |
 
 ## 📁 Project Structure
 
@@ -345,6 +349,22 @@ Refresh access and refresh tokens. Requires valid refresh token. Implements toke
 ```
 
 Sets new `accessToken` and `refreshToken` cookies. Old refresh token is invalidated.
+
+#### Logout
+
+```
+POST /auth/logout
+```
+
+Log out the current user. Deletes the refresh token from the database and clears both `accessToken` and `refreshToken` cookies.
+
+**Authentication:** Requires valid `accessToken` and `refreshToken` cookies.
+
+**Response (200):**
+
+```json
+{}
+```
 
 ### JWKS Endpoint
 
