@@ -4,6 +4,8 @@ import { User } from "../entity/User.js";
 import { Config } from "./index.js";
 import { RefreshToken } from "../entity/RefreshTokens.js";
 
+const isTest = Config.NODE_ENV === "test";
+
 export const AppDataSource = new DataSource({
     type: "postgres",
     host: String(Config.DB_HOST),
@@ -14,9 +16,9 @@ export const AppDataSource = new DataSource({
 
     // Don't use this in production. Always keep false.
     // synchronize: Config.NODE_ENV === "test" || Config.NODE_ENV === "dev",
-    synchronize: true,
+    synchronize: false,
     logging: false,
     entities: [User, RefreshToken],
-    migrations: [],
+    migrations: isTest ? [] : ["src/migrations/*.ts"],
     subscribers: [],
 });

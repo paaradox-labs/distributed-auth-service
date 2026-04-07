@@ -15,7 +15,9 @@
         "lint:fix": "eslint . --fix",
         "test": "NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand",
         "prepare": "husky",
-        "typeorm": "typeorm-ts-node-esm"
+        "migration:generate": "typeorm-ts-node-esm migration:generate",
+        "migration:run": "typeorm-ts-node-esm migration:run",
+        "migration:create": "typeorm-ts-node-esm migration:create"
     },
     "author": "Mr. Paradox avyas8927@gmail.com",
     "license": "ISC",
