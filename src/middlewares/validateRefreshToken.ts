@@ -16,8 +16,6 @@ const validateRefreshToken: RequestHandler = expressjwt({
         return refreshToken;
     },
     async isRevoked(req: Request, token) {
-        console.log("token", token);
-
         try {
             const refreshTokenRepo = AppDataSource.getRepository(RefreshToken);
             const refreshToken = await refreshTokenRepo.findOne({
@@ -29,8 +27,8 @@ const validateRefreshToken: RequestHandler = expressjwt({
                 },
             });
             return refreshToken === null;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
-            console.log(err);
             logger.error("Error while getting the refresh token", {
                 id: (token?.payload as IRefreshTokenPayload).id,
             });

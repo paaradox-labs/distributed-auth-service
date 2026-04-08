@@ -3,6 +3,7 @@ import type { TenantService } from "../services/TenantService.js";
 import type { CreateTenantRequest } from "../types/index.js";
 import createHttpError from "http-errors";
 import type { Logger } from "winston";
+import { validationResult } from "express-validator";
 
 export class TenantController {
     constructor(
@@ -11,6 +12,13 @@ export class TenantController {
     ) {}
 
     async create(req: CreateTenantRequest, res: Response, next: NextFunction) {
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            return res.status(400).json({
+                errors: result.array(),
+            });
+        }
+
         const { name, address } = req.body;
 
         this.logger.debug("Request for creating a tenant", req.body);
@@ -28,8 +36,6 @@ export class TenantController {
         } catch (error) {
             next(error);
         }
-
-        res.status(201).json({});
     }
 
     async getAll(req: Request, res: Response, next: NextFunction) {
@@ -52,8 +58,8 @@ export class TenantController {
 
         try {
             const tenant = await this.tenantService.getById(Number(tenantId));
-            if (!tenantId) {
-                next(createHttpError(400, "Tenant does not exist"));
+            if (!tenant) {
+                next(createHttpError(404, "Tenant does not exist"));
                 return;
             }
             this.logger.info("Tenant has been fetched");
@@ -64,6 +70,13 @@ export class TenantController {
     }
 
     async update(req: CreateTenantRequest, res: Response, next: NextFunction) {
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            return res.status(400).json({
+                errors: result.array(),
+            });
+        }
+
         const { name, address } = req.body;
         const tenantId = req.params.id;
 

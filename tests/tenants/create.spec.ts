@@ -124,5 +124,69 @@ describe("POST /tenants", () => {
 
             expect(tenants).toHaveLength(0);
         });
+
+        it("should return the id of the created tenant", async () => {
+            const tenantData = {
+                name: "Tenant name",
+                address: "Tenant address",
+            };
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken}`])
+                .send(tenantData);
+
+            expect(response.statusCode).toBe(201);
+            expect(response.body).toHaveProperty("id");
+        });
+    });
+
+    describe("Fields are missing", () => {
+        it("should return 400 status code if name is missing", async () => {
+            const tenantData = {
+                name: "",
+                address: "Tenant address",
+            };
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken}`])
+                .send(tenantData);
+
+            expect(response.statusCode).toBe(400);
+            const tenantRepository = connection.getRepository(Tenant);
+            const tenants = await tenantRepository.find();
+            expect(tenants).toHaveLength(0);
+        });
+
+        it("should return 400 status code if address is missing", async () => {
+            const tenantData = {
+                name: "Tenant name",
+                address: "",
+            };
+
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken}`])
+                .send(tenantData);
+
+            expect(response.statusCode).toBe(400);
+            const tenantRepository = connection.getRepository(Tenant);
+            const tenants = await tenantRepository.find();
+            expect(tenants).toHaveLength(0);
+        });
+
+        it("should return an array of validation errors when fields are invalid", async () => {
+            const response = await request(app)
+                .post("/tenants")
+                .set("Cookie", [`accessToken=${adminToken}`])
+                .send({ name: "", address: "" });
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body).toHaveProperty("errors");
+            expect(
+                (response.body as { errors: unknown[] }).errors.length,
+            ).toBeGreaterThan(0);
+        });
     });
 });
