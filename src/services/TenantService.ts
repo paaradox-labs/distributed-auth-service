@@ -20,4 +20,12 @@ export class TenantService {
             },
         });
     }
+
+    async update(id: number, tenantData: ITenant) {
+        return await this.tenantRepository.update(id, tenantData);
+    }
+
+    async deleteById(tenantId: number) {
+        return await this.tenantRepository.delete(tenantId);
+    }
 }
