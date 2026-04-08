@@ -1,4 +1,4 @@
-import type { NextFunction, Response } from "express";
+import type { Request, NextFunction, Response } from "express";
 import type { TenantService } from "../services/TenantService.js";
 import type { CreateTenantRequest } from "../types/index.js";
 import type { Logger } from "winston";
@@ -29,5 +29,15 @@ export class TenantController {
         }
 
         res.status(201).json({});
+    }
+
+    async getAll(req: Request, res: Response, next: NextFunction) {
+        try {
+            const tenants = await this.tenatService.getAll();
+            this.logger.info("All tennat has been fetched");
+            res.json(tenants);
+        } catch (error) {
+            next(error);
+        }
     }
 }
