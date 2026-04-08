@@ -12,6 +12,7 @@ import logger from "./config/logger.js";
 import type { HttpError } from "http-errors";
 
 import authRouter from "./routes/auth.js";
+import tenantRouter from "./routes/tenant.js";
 import cookieParser from "cookie-parser";
 
 const app: Express = express();
@@ -28,6 +29,7 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/auth", authRouter);
+app.use("/tenants", tenantRouter);
 
 //global error handler
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
