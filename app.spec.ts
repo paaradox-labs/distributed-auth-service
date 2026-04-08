@@ -2,7 +2,7 @@ import app from "./src/app.js";
 import { calculateDiscount } from "./src/utils.js";
 import request from "supertest";
 
-describe.skip("App", () => {
+describe("App", () => {
     it("should return correct discount amount", () => {
         const discount = calculateDiscount(100, 10);
         expect(discount).toBe(10);
