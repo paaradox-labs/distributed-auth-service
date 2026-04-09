@@ -3,20 +3,34 @@ import { AppDataSource } from "../../src/config/data-source.js";
 import app from "../../src/app.js";
 import request from "supertest";
 import { Tenant } from "../../src/entity/Tenant.js";
+import type { JWKSMock } from "mock-jwks";
+import { getCreateJWKSMock } from "../shims/mock-jwks.js";
+import { Roles } from "../../src/constants/index.js";
 
 describe("GET /tenants and GET /tenants/:id", () => {
     let connection: DataSource;
+    let jwks: JWKSMock;
+    let adminToken: string;
 
     beforeAll(async () => {
+        const createJWKSMock = getCreateJWKSMock();
+        jwks = createJWKSMock("http://localhost:5501");
         connection = await AppDataSource.initialize();
+        jwks.start();
     });
 
     beforeEach(async () => {
         await connection.dropDatabase();
         await connection.synchronize();
+
+        adminToken = jwks.token({
+            sub: "1",
+            role: Roles.ADMIN,
+        });
     });
 
     afterAll(async () => {
+        jwks.stop();
         if (connection && connection.isInitialized) {
             await connection.destroy();
         }
@@ -59,6 +73,7 @@ describe("GET /tenants and GET /tenants/:id", () => {
 
             const response = await request(app)
                 .get(`/tenants/${saved.id}`)
+                .set("Cookie", [`accessToken=${adminToken}`])
                 .send();
 
             expect(response.statusCode).toBe(200);
@@ -72,13 +87,17 @@ describe("GET /tenants and GET /tenants/:id", () => {
         it("should return 400 when id is not a number", async () => {
             const response = await request(app)
                 .get("/tenants/not-a-number")
+                .set("Cookie", [`accessToken=${adminToken}`])
                 .send();
 
             expect(response.statusCode).toBe(400);
         });
 
         it("should return 404 when tenant does not exist", async () => {
-            const response = await request(app).get("/tenants/99999").send();
+            const response = await request(app)
+                .get("/tenants/99999")
+                .set("Cookie", [`accessToken=${adminToken}`])
+                .send();
 
             expect(response.statusCode).toBe(404);
         });
