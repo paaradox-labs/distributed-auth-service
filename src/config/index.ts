@@ -1,11 +1,12 @@
 import path from "path";
 import { config } from "dotenv";
 import { fileURLToPath } from "url";
+import { resolveEnvFilePath } from "./env-file-path.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 config({
-    path: path.join(__dirname, `../../.env.${process.env.NODE_ENV || "dev"}`),
+    path: resolveEnvFilePath(process.env.NODE_ENV, __dirname),
 });
 
 const {
