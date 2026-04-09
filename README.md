@@ -145,22 +145,22 @@ pnpm run test:watch
 
 ## 📝 Scripts
 
-| Script | Description |
-| --- | --- |
-| `pnpm run dev` | Dev server with hot reload (`NODE_ENV=dev`) |
-| `pnpm run build` | Compile TypeScript |
-| `pnpm run docker:build` | Build Docker image |
-| `pnpm run docker:run` | Run app container |
-| `pnpm run docker:db` | Start PostgreSQL container |
-| `pnpm test` | Jest with coverage (single run) |
-| `pnpm run test:watch` | Jest watch mode |
-| `pnpm run lint:check` | ESLint |
-| `pnpm run lint:fix` | ESLint with fix |
-| `pnpm run format:check` | Prettier check |
-| `pnpm run format:fix` | Prettier write |
+| Script                        | Description                                                |
+| ----------------------------- | ---------------------------------------------------------- |
+| `pnpm run dev`                | Dev server with hot reload (`NODE_ENV=dev`)                |
+| `pnpm run build`              | Compile TypeScript                                         |
+| `pnpm run docker:build`       | Build Docker image                                         |
+| `pnpm run docker:run`         | Run app container                                          |
+| `pnpm run docker:db`          | Start PostgreSQL container                                 |
+| `pnpm test`                   | Jest with coverage (single run)                            |
+| `pnpm run test:watch`         | Jest watch mode                                            |
+| `pnpm run lint:check`         | ESLint                                                     |
+| `pnpm run lint:fix`           | ESLint with fix                                            |
+| `pnpm run format:check`       | Prettier check                                             |
+| `pnpm run format:fix`         | Prettier write                                             |
 | `pnpm run migration:generate` | Generate migration from schema diff (pass path after `--`) |
-| `pnpm run migration:run` | Run pending migrations |
-| `pnpm run migration:create` | Create empty migration stub |
+| `pnpm run migration:run`      | Run pending migrations                                     |
+| `pnpm run migration:create`   | Create empty migration stub                                |
 
 ## 📁 Project Structure
 
@@ -199,8 +199,8 @@ ES modules (`"module": "nodenext"`), strict mode, source maps.
 
 ### Database
 
-- **ORM**: TypeORM with PostgreSQL  
-- **Entities**: `User`, `RefreshToken`, `Tenant`  
+- **ORM**: TypeORM with PostgreSQL
+- **Entities**: `User`, `RefreshToken`, `Tenant`
 - **Users** may reference a **tenant** via a many-to-one relation.
 
 ### Code quality
@@ -215,22 +215,22 @@ ESLint, Prettier, Husky, lint-staged.
 
 ### Authentication (`/auth`)
 
-| Method | Path | Description |
-| --- | --- | --- |
-| POST | `/auth/register` | Register; default role `customer`. Optional body field `tenantId` (number) to attach the user to a tenant. Sets cookies. |
-| POST | `/auth/login` | Login; sets cookies. |
-| GET | `/auth/self` | Current user. **Auth:** Bearer or `accessToken` cookie. |
-| POST | `/auth/refresh` | Rotate tokens. **Auth:** `refreshToken` cookie (via refresh validation middleware). |
-| POST | `/auth/logout` | Invalidate refresh token and clear cookies. **Auth:** access + refresh flow as implemented. |
+| Method | Path             | Description                                                                                                              |
+| ------ | ---------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| POST   | `/auth/register` | Register; default role `customer`. Optional body field `tenantId` (number) to attach the user to a tenant. Sets cookies. |
+| POST   | `/auth/login`    | Login; sets cookies.                                                                                                     |
+| GET    | `/auth/self`     | Current user. **Auth:** Bearer or `accessToken` cookie.                                                                  |
+| POST   | `/auth/refresh`  | Rotate tokens. **Auth:** `refreshToken` cookie (via refresh validation middleware).                                      |
+| POST   | `/auth/logout`   | Invalidate refresh token and clear cookies. **Auth:** access + refresh flow as implemented.                              |
 
 **Register / login body (typical):**
 
 ```json
 {
-  "firstName": "string",
-  "lastName": "string",
-  "email": "string",
-  "password": "string"
+    "firstName": "string",
+    "lastName": "string",
+    "email": "string",
+    "password": "string"
 }
 ```
 
@@ -240,25 +240,25 @@ Successful register/login responses return user fields (role, etc.) and set **ac
 
 ### Tenants (`/tenants`)
 
-| Method | Path | Auth / role |
-| --- | --- | --- |
-| GET | `/tenants` | **Public** — list all tenants |
-| GET | `/tenants/:id` | **Authenticated**, role **admin** |
-| POST | `/tenants` | **Authenticated**, **admin** — body: `name`, `address` |
-| PATCH | `/tenants/:id` | **Authenticated**, **admin** — body: `name`, `address` |
-| DELETE | `/tenants/:id` | **Authenticated**, **admin** |
+| Method | Path           | Auth / role                                            |
+| ------ | -------------- | ------------------------------------------------------ |
+| GET    | `/tenants`     | **Public** — list all tenants                          |
+| GET    | `/tenants/:id` | **Authenticated**, role **admin**                      |
+| POST   | `/tenants`     | **Authenticated**, **admin** — body: `name`, `address` |
+| PATCH  | `/tenants/:id` | **Authenticated**, **admin** — body: `name`, `address` |
+| DELETE | `/tenants/:id` | **Authenticated**, **admin**                           |
 
 ### Users (`/users`)
 
 All routes require **authentication** and role **admin**.
 
-| Method | Path | Description |
-| --- | --- | --- |
-| POST | `/users` | Create user: `firstName`, `lastName`, `email`, `password`, `role`, `tenantId` |
-| GET | `/users` | List users |
-| GET | `/users/:id` | Get one user |
-| PATCH | `/users/:id` | Update `firstName`, `lastName`, `role` |
-| DELETE | `/users/:id` | Delete user |
+| Method | Path         | Description                                                                   |
+| ------ | ------------ | ----------------------------------------------------------------------------- |
+| POST   | `/users`     | Create user: `firstName`, `lastName`, `email`, `password`, `role`, `tenantId` |
+| GET    | `/users`     | List users                                                                    |
+| GET    | `/users/:id` | Get one user                                                                  |
+| PATCH  | `/users/:id` | Update `firstName`, `lastName`, `role`                                        |
+| DELETE | `/users/:id` | Delete user                                                                   |
 
 ### JWKS
 
@@ -270,14 +270,14 @@ Failed requests often return JSON in the form:
 
 ```json
 {
-  "errors": [
-    {
-      "type": "ErrorName",
-      "msg": "message",
-      "path": "",
-      "location": ""
-    }
-  ]
+    "errors": [
+        {
+            "type": "ErrorName",
+            "msg": "message",
+            "path": "",
+            "location": ""
+        }
+    ]
 }
 ```
 
@@ -302,10 +302,10 @@ Winston writes under `logs/` (e.g. error and combined logs), with level driven b
 
 ## 🤝 Contributing
 
-1. Fork the repository  
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)  
-3. Commit your changes  
-4. Push and open a Pull Request  
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes
+4. Push and open a Pull Request
 
 Commits should pass lint and format checks (Husky / lint-staged).
 
