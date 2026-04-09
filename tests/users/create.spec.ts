@@ -6,6 +6,8 @@ import type { JWKSMock } from "mock-jwks";
 import { getCreateJWKSMock } from "../shims/mock-jwks.js";
 import { Roles } from "../../src/constants/index.js";
 import { User } from "../../src/entity/User.js";
+import { createTenant } from "../utils/index.js";
+import { Tenant } from "../../src/entity/Tenant.js";
 
 describe("Create routes", () => {
     let connection: DataSource;
@@ -33,6 +35,9 @@ describe("Create routes", () => {
     describe("POST /users", () => {
         describe("Given all fields", () => {
             it("should persist the user in the database", async () => {
+                const tenant = await createTenant(
+                    connection.getRepository(Tenant),
+                );
                 const adminToken = jwks.token({
                     sub: "1",
                     role: Roles.ADMIN,
@@ -43,7 +48,8 @@ describe("Create routes", () => {
                     lastName: "Vyas",
                     email: "avyas8927@gmail.com",
                     password: "Aditya123",
-                    tenantId: 1,
+                    tenantId: tenant.id,
+                    role: Roles.MANAGER,
                 };
 
                 // Add token to cookie
@@ -62,6 +68,10 @@ describe("Create routes", () => {
             });
 
             it("should create a manager user", async () => {
+                const tenant = await createTenant(
+                    connection.getRepository(Tenant),
+                );
+
                 const adminToken = jwks.token({
                     sub: "1",
                     role: Roles.ADMIN,
@@ -72,7 +82,7 @@ describe("Create routes", () => {
                     lastName: "Vyas",
                     email: "avyas8927@gmail.com",
                     password: "Aditya123",
-                    tenantId: 1,
+                    tenantId: tenant.id,
                 };
 
                 // Add token to cookie
@@ -91,6 +101,10 @@ describe("Create routes", () => {
             });
 
             it("should return 403 if non admin user tries to create a user", async () => {
+                const tenant = await createTenant(
+                    connection.getRepository(Tenant),
+                );
+
                 const managerToken = jwks.token({
                     sub: "1",
                     role: Roles.MANAGER,
@@ -101,7 +115,7 @@ describe("Create routes", () => {
                     lastName: "Vyas",
                     email: "avyas8927@gmail.com",
                     password: "Aditya123",
-                    tenantId: 1,
+                    tenantId: tenant.id,
                 };
 
                 const response = await request(app)
@@ -113,6 +127,7 @@ describe("Create routes", () => {
 
                 const userRepository = connection.getRepository(User);
                 const users = await userRepository.find();
+
                 expect(users).toHaveLength(0);
             });
         });
