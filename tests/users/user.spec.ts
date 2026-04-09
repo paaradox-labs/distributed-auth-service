@@ -283,4 +283,286 @@ describe("Auth routes", () => {
             expect(res.statusCode).toBe(401);
         });
     });
+
+    describe("userCrud", () => {
+        let adminToken: string;
+
+        beforeEach(() => {
+            adminToken = jwks.token({
+                sub: "1",
+                role: Roles.ADMIN,
+            });
+        });
+
+        describe("POST /users", () => {
+            const userData = {
+                firstName: "Aditya",
+                lastName: "Vyas",
+                email: "crud-create@example.com",
+                password: "Aditya@123",
+            };
+
+            it("should persist a user with a hashed password", async () => {
+                await request(app)
+                    .post("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send(userData)
+                    .expect(201);
+
+                const userRepository = connection.getRepository(User);
+                const users = await userRepository.find();
+
+                expect(users).toHaveLength(1);
+
+                const row = users[0];
+
+                expect(row).toBeDefined();
+                expect(row?.email).toBe(userData.email);
+                expect(row?.firstName).toBe(userData.firstName);
+                expect(row?.lastName).toBe(userData.lastName);
+                expect(row?.role).toBe(Roles.MANAGER);
+                expect(row?.password).not.toBe(userData.password);
+
+                const matches = await bcrypt.compare(
+                    userData.password,
+                    row!.password,
+                );
+
+                expect(matches).toBe(true);
+            });
+
+            it("should return 400 when the email already exists", async () => {
+                await request(app)
+                    .post("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send(userData)
+                    .expect(201);
+
+                const response = await request(app)
+                    .post("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send(userData);
+
+                expect(response.status).toBe(400);
+                expect(
+                    (response.body as { errors?: { msg?: string }[] })
+                        .errors?.[0]?.msg,
+                ).toBe("Email already exisits!");
+            });
+
+            it("should return 400 when validation fails on create", async () => {
+                const response = await request(app)
+                    .post("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        lastName: "Vyas",
+                        email: "missing-first@example.com",
+                        password: "Aditya@123",
+                    });
+
+                expect(response.status).toBe(400);
+                expect(Array.isArray(response.body.errors)).toBe(true);
+            });
+        });
+
+        describe("GET /users", () => {
+            it("should return an empty array when there are no users", async () => {
+                const response = await request(app)
+                    .get("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect(response.body).toEqual([]);
+            });
+
+            it("should return every user", async () => {
+                const userRepository = connection.getRepository(User);
+                await userRepository.save({
+                    firstName: "One",
+                    lastName: "User",
+                    email: "one@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.CUSTOMER,
+                });
+                await userRepository.save({
+                    firstName: "Two",
+                    lastName: "User",
+                    email: "two@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .get("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect(response.body).toHaveLength(2);
+
+                const emails = (response.body as { email: string }[]).map(
+                    (u) => u.email,
+                );
+
+                expect(emails.sort()).toEqual([
+                    "one@example.com",
+                    "two@example.com",
+                ]);
+            });
+        });
+
+        describe("GET /users/:id", () => {
+            it("should return the user when the id exists", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "A",
+                    lastName: "B",
+                    email: "byid@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.CUSTOMER,
+                });
+
+                const response = await request(app)
+                    .get(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect((response.body as { id: number }).id).toBe(saved.id);
+                expect((response.body as { email: string }).email).toBe(
+                    "byid@example.com",
+                );
+            });
+
+            it("should return 400 when the user does not exist", async () => {
+                const response = await request(app)
+                    .get("/users/99999")
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(400);
+                expect(
+                    (response.body as { errors?: { msg?: string }[] })
+                        .errors?.[0]?.msg,
+                ).toBe("User does not exist.");
+            });
+
+            it("should return 400 when id is not a number", async () => {
+                const response = await request(app)
+                    .get("/users/not-a-number")
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(400);
+                expect(
+                    (response.body as { errors?: { msg?: string }[] })
+                        .errors?.[0]?.msg,
+                ).toBe("Invalid URL Param.");
+            });
+        });
+
+        describe("PATCH /users/:id", () => {
+            it("should update firstName, lastName, and role", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "Old",
+                    lastName: "Name",
+                    email: "update@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .patch(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        firstName: "New",
+                        lastName: "Person",
+                        role: Roles.ADMIN,
+                    });
+
+                expect(response.status).toBe(200);
+                expect(response.body).toEqual({ id: saved.id });
+
+                const row = await userRepository.findOne({
+                    where: { id: saved.id },
+                });
+
+                expect(row?.firstName).toBe("New");
+                expect(row?.lastName).toBe("Person");
+                expect(row?.role).toBe(Roles.ADMIN);
+            });
+
+            it("should return 400 when validation fails on update", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "Old",
+                    lastName: "Name",
+                    email: "validation-patch@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .patch(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        firstName: "",
+                        lastName: "",
+                        role: "",
+                    });
+
+                expect(response.status).toBe(400);
+                expect(Array.isArray(response.body.errors)).toBe(true);
+            });
+
+            it("should return 400 when id is not a number", async () => {
+                const response = await request(app)
+                    .patch("/users/not-a-number")
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        firstName: "A",
+                        lastName: "B",
+                        role: Roles.CUSTOMER,
+                    });
+
+                expect(response.status).toBe(400);
+                expect(
+                    (response.body as { errors?: { msg?: string }[] })
+                        .errors?.[0]?.msg,
+                ).toBe("Invalid URL Param");
+            });
+        });
+
+        describe("DELETE /users/:id", () => {
+            it("should remove the user", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "Del",
+                    lastName: "Me",
+                    email: "del@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.CUSTOMER,
+                });
+
+                const response = await request(app)
+                    .delete(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect(response.body).toEqual({ id: saved.id });
+
+                const users = await userRepository.find();
+                expect(users).toHaveLength(0);
+            });
+
+            it("should return 400 when id is not a number", async () => {
+                const response = await request(app)
+                    .delete("/users/not-a-number")
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(400);
+                expect(
+                    (response.body as { errors?: { msg?: string }[] })
+                        .errors?.[0]?.msg,
+                ).toBe("Invalid URL Param.");
+            });
+        });
+    });
 });
