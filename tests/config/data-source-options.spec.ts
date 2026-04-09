@@ -18,7 +18,7 @@ const db = {
 };
 
 describe("buildDataSourceOptions", () => {
-    it("uses entity classes and empty migrations when isTest is true", () => {
+    it("uses entity classes and empty migrations when omitMigrations is true (Jest)", () => {
         const opts = buildDataSourceOptions(true, db, entityClasses);
 
         expect(opts.type).toBe("postgres");
@@ -34,10 +34,10 @@ describe("buildDataSourceOptions", () => {
         expect(opts.subscribers).toEqual([]);
     });
 
-    it("uses glob paths for entities and migrations when isTest is false", () => {
+    it("uses entity classes and migration globs when omitMigrations is false (e.g. dev)", () => {
         const opts = buildDataSourceOptions(false, db, entityClasses);
 
-        expect(opts.entities).toEqual(["src/entity/*.ts"]);
-        expect(opts.migrations).toEqual(["src/migrations/*.ts"]);
+        expect(opts.entities).toEqual(entityClasses);
+        expect(opts.migrations).toEqual(["src/migrations/*.{ts,js}"]);
     });
 });

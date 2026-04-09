@@ -18,7 +18,7 @@ export type DbConfigFields = {
 };
 
 export function buildDataSourceOptions(
-    isTest: boolean,
+    omitMigrations: boolean,
     db: DbConfigFields,
     entityClasses: [typeof User, typeof RefreshToken, typeof Tenant],
 ): PostgresDataSourceOptions {
@@ -32,8 +32,8 @@ export function buildDataSourceOptions(
 
         synchronize: false,
         logging: false,
-        entities: isTest ? entityClasses : ["src/entity/*.ts"],
-        migrations: isTest ? [] : ["src/migrations/*.ts"],
+        entities: entityClasses,
+        migrations: omitMigrations ? [] : ["src/migrations/*.{ts,js}"],
         subscribers: [],
     };
 }
