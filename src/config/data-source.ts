@@ -6,14 +6,14 @@ import { RefreshToken } from "../entity/RefreshTokens.js";
 import { Tenant } from "../entity/Tenant.js";
 import { buildDataSourceOptions } from "./data-source-options.js";
 
-const isTest = Config.NODE_ENV === "test";
+const omitMigrations = Config.NODE_ENV === "test";
 
 // Don't use this in production. Always keep false.
 // synchronize: Config.NODE_ENV === "test" || Config.NODE_ENV === "dev",
 
 export const AppDataSource = new DataSource(
     buildDataSourceOptions(
-        isTest,
+        omitMigrations,
         {
             host: Config.DB_HOST,
             port: Config.DB_PORT,
