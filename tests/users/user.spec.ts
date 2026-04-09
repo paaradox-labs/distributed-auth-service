@@ -151,6 +151,7 @@ describe("Auth routes", () => {
                 expect(response.statusCode).toBe(401);
             });
 
+            // Bearer Header Test
             it("should accept access token from Authorization Bearer header", async () => {
                 const accessToken = jwks.token({
                     sub: "1",
@@ -163,6 +164,7 @@ describe("Auth routes", () => {
                 expect(response.statusCode).toBe(200);
             });
 
+            // Use Cookie if Bearer fails
             it("should fall back to cookie when Bearer value is the literal undefined", async () => {
                 const accessToken = jwks.token({
                     sub: "1",
