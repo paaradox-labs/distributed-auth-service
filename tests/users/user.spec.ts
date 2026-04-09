@@ -4,7 +4,9 @@ import app from "../../src/app.js";
 import request, { type Response } from "supertest";
 import bcrypt from "bcrypt";
 import { User } from "../../src/entity/User.js";
+import { Tenant } from "../../src/entity/Tenant.js";
 import { Roles } from "../../src/constants/index.js";
+import { createTenant } from "../utils/index.js";
 import type { JWKSMock } from "mock-jwks";
 import { getCreateJWKSMock } from "../shims/mock-jwks.js";
 
@@ -295,12 +297,27 @@ describe("Auth routes", () => {
         });
 
         describe("POST /users", () => {
-            const userData = {
-                firstName: "Aditya",
-                lastName: "Vyas",
-                email: "crud-create@example.com",
-                password: "Aditya@123",
+            let userData: {
+                firstName: string;
+                lastName: string;
+                email: string;
+                password: string;
+                tenantId: number;
+                role: string;
             };
+            beforeEach(async () => {
+                const tenant = await createTenant(
+                    connection.getRepository(Tenant),
+                );
+                userData = {
+                    firstName: "Aditya",
+                    lastName: "Vyas",
+                    email: "crud-create@example.com",
+                    password: "Aditya@123",
+                    tenantId: tenant.id,
+                    role: Roles.MANAGER,
+                };
+            });
 
             it("should persist a user with a hashed password", async () => {
                 await request(app)

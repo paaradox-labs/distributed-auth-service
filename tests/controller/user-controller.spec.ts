@@ -34,6 +34,8 @@ describe("UserController catch paths", () => {
                     lastName: "B",
                     email: "a@b.com",
                     password: "longpassword1",
+                    role: Roles.MANAGER,
+                    tenantId: 1,
                 },
             } as Parameters<UserController["create"]>[0],
             mockRes(),
