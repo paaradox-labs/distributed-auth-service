@@ -1,7 +1,6 @@
 import type { Request, NextFunction, Response } from "express";
 import type { UserService } from "../services/UserService.js";
 import type { CreateUserRequest, UpdateUserRequest } from "../types/index.js";
-import { Roles } from "../constants/index.js";
 import { validationResult } from "express-validator";
 import { Logger } from "winston";
 import createHttpError from "http-errors";
@@ -17,14 +16,16 @@ export class UserController {
         if (!result.isEmpty()) {
             return res.status(400).json({ errors: result.array() });
         }
-        const { firstName, lastName, email, password } = req.body;
+        const { firstName, lastName, email, password, tenantId, role } =
+            req.body;
         try {
             const user = await this.userService.create({
                 firstName,
                 lastName,
                 email,
                 password,
-                role: Roles.MANAGER,
+                role,
+                tenantId,
             });
             res.status(201).json({ id: user.id });
         } catch (error) {

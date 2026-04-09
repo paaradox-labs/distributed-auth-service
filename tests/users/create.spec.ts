@@ -83,6 +83,7 @@ describe("Create routes", () => {
                     email: "avyas8927@gmail.com",
                     password: "Aditya123",
                     tenantId: tenant.id,
+                    role: Roles.MANAGER,
                 };
 
                 // Add token to cookie
@@ -116,6 +117,7 @@ describe("Create routes", () => {
                     email: "avyas8927@gmail.com",
                     password: "Aditya123",
                     tenantId: tenant.id,
+                    role: Roles.MANAGER,
                 };
 
                 const response = await request(app)

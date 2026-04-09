@@ -1,4 +1,4 @@
-import type { Repository } from "typeorm";
+import type { DeepPartial, Repository } from "typeorm";
 import { User } from "../entity/User.js";
 import type { LimitedUserData, UserData } from "../types/index.js";
 import createHttpError from "http-errors";
@@ -6,7 +6,14 @@ import bcrypt from "bcrypt";
 
 export class UserService {
     constructor(private userRepository: Repository<User>) {}
-    async create({ firstName, lastName, email, password, role }: UserData) {
+    async create({
+        firstName,
+        lastName,
+        email,
+        password,
+        role,
+        tenantId,
+    }: UserData): Promise<User> {
         // Check for Email
         const user = await this.userRepository.findOne({
             where: {
@@ -23,15 +30,19 @@ export class UserService {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
+        const newUser: DeepPartial<User> = {
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword,
+            role,
+        };
+        if (tenantId !== undefined) {
+            newUser.tenant = { id: tenantId };
+        }
+
         try {
-            const user = await this.userRepository.save({
-                firstName,
-                lastName,
-                email,
-                password: hashedPassword,
-                role,
-            });
-            return user;
+            return await this.userRepository.save(newUser);
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             const error = createHttpError(
