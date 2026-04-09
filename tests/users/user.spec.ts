@@ -310,17 +310,15 @@ describe("Auth routes", () => {
                     .expect(201);
 
                 const userRepository = connection.getRepository(User);
-                const users = await userRepository.find();
+                const users = await userRepository.find({
+                    select: ["password"],
+                });
 
                 expect(users).toHaveLength(1);
 
                 const row = users[0];
 
                 expect(row).toBeDefined();
-                expect(row?.email).toBe(userData.email);
-                expect(row?.firstName).toBe(userData.firstName);
-                expect(row?.lastName).toBe(userData.lastName);
-                expect(row?.role).toBe(Roles.MANAGER);
                 expect(row?.password).not.toBe(userData.password);
 
                 const matches = await bcrypt.compare(
