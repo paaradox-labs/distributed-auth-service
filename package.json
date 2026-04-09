@@ -6,6 +6,7 @@
     "type": "module",
     "scripts": {
         "dev": "cross-env NODE_ENV=dev nodemon",
+        "build": "tsc -p tsconfig.json",
         "docker:build": "docker build -t auth-service:dev -f docker/dev/Dockerfile .",
         "docker:run": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=dev auth-service:dev",
         "docker:db": "docker run --rm --name mernpg-container -e POSTGRES_USER=root -e POSTGRES_PASSWORD=root -v mernpgdata:/var/lib/postgresql -p 5432:5432 -d postgres",
@@ -15,6 +16,7 @@
         "lint:fix": "eslint . --fix",
         "test": "NODE_OPTIONS=--experimental-vm-modules jest --no-cache --coverage --all --runInBand",
         "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch --runInBand",
+        "start": "ts-node src/index.ts",
         "prepare": "husky",
         "migration:generate": "typeorm-ts-node-esm migration:generate",
         "migration:run": "typeorm-ts-node-esm migration:run",

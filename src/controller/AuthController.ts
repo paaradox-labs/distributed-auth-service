@@ -29,7 +29,7 @@ export class AuthController {
             });
         }
 
-        const { firstName, lastName, email, password } = req.body;
+        const { firstName, lastName, email, password, tenantId } = req.body;
         this.logger.debug("New request to register a user", {
             firstName,
             lastName,
@@ -43,6 +43,7 @@ export class AuthController {
                 email,
                 password,
                 role: Roles.CUSTOMER,
+                tenantId,
             });
 
             this.logger.info("User has been registered", { id: user.id });
