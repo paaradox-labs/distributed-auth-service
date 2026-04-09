@@ -178,7 +178,7 @@ describe("POST /auth/refresh", () => {
         );
         expect(refreshCookie).not.toBeNull();
 
-        const refreshRepo = AppDataSource.getRepository(RefreshToken);
+        const refreshRepo = connection.getRepository(RefreshToken);
         const originalFindOne = refreshRepo.findOne.bind(refreshRepo);
         refreshRepo.findOne = async () => {
             throw new Error("forced db error");

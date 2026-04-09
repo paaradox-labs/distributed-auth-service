@@ -31,7 +31,7 @@ function extractCookie(
     return null;
 }
 
-describe("GET /auth/self", () => {
+describe("Auth routes", () => {
     let connection: DataSource;
     let jwks: JWKSMock;
 
@@ -39,142 +39,142 @@ describe("GET /auth/self", () => {
         const createJWKSMock = getCreateJWKSMock();
         jwks = createJWKSMock("http://localhost:5501");
         connection = await AppDataSource.initialize();
+        jwks.start();
     });
 
     beforeEach(async () => {
-        jwks.start();
-        // Database Truncate
         await connection.dropDatabase();
         await connection.synchronize();
     });
 
-    afterEach(() => {
-        jwks.stop();
-    });
-
     afterAll(async () => {
+        jwks.stop();
         if (connection && connection.isInitialized) {
             await connection.destroy();
         }
     });
 
-    describe("Given all fields", () => {
-        it("should return the 200 status code", async () => {
-            const accessToken = jwks.token({
-                sub: "1",
-                role: Roles.CUSTOMER,
+    describe("GET /auth/self", () => {
+        describe("Given all fields", () => {
+            it("should return the 200 status code", async () => {
+                const accessToken = jwks.token({
+                    sub: "1",
+                    role: Roles.CUSTOMER,
+                });
+                const response = await request(app)
+                    .get("/auth/self")
+                    .set("Cookie", [`accessToken=${accessToken}`])
+                    .send();
+                expect(response.statusCode).toBe(200);
             });
-            const response = await request(app)
-                .get("/auth/self")
-                .set("Cookie", [`accessToken=${accessToken}`])
-                .send();
-            expect(response.statusCode).toBe(200);
-        });
 
-        it("should return the user data", async () => {
-            // Register a user first
-            const userData = {
-                firstName: "Aditya",
-                lastName: "Vyas",
-                email: "avyas8927@gmail.com",
-                password: "Aditya123",
-            };
-            const userRepository = connection.getRepository(User);
-            const data = await userRepository.save({
-                ...userData,
-                role: Roles.CUSTOMER,
+            it("should return the user data", async () => {
+                // Register a user first
+                const userData = {
+                    firstName: "Aditya",
+                    lastName: "Vyas",
+                    email: "avyas8927@gmail.com",
+                    password: "Aditya123",
+                };
+                const userRepository = connection.getRepository(User);
+                const data = await userRepository.save({
+                    ...userData,
+                    role: Roles.CUSTOMER,
+                });
+                // Generate TOKEN
+                const accessToken = jwks.token({
+                    sub: String(data.id),
+                    role: data.role,
+                });
+                // Add token to cookie
+
+                const response = await request(app)
+                    .get("/auth/self")
+                    .set("Cookie", [`accessToken=${accessToken};`])
+                    .send();
+
+                // Assert
+                // Check if user id matches with the registerd user.
+                expect((response.body as Record<string, string>).id).toBe(
+                    data.id,
+                );
             });
-            // Generate TOKEN
-            const accessToken = jwks.token({
-                sub: String(data.id),
-                role: data.role,
+
+            it("should not return the password field", async () => {
+                const userData = {
+                    firstName: "Aditya",
+                    lastName: "Vyas",
+                    email: "avyas8927@gmail.com",
+                    password: "Aditya123",
+                };
+                const userRepository = connection.getRepository(User);
+                const data = await userRepository.save({
+                    ...userData,
+                    role: Roles.CUSTOMER,
+                });
+                // Generate TOKEN
+                const accessToken = jwks.token({
+                    sub: String(data.id),
+                    role: data.role,
+                });
+                // Add token to cookie
+
+                const response = await request(app)
+                    .get("/auth/self")
+                    .set("Cookie", [`accessToken=${accessToken};`])
+                    .send();
+
+                // Assert
+                // Check if user id matches with the registerd user.
+                expect(
+                    response.body as Record<string, string>,
+                ).not.toHaveProperty("password");
             });
-            // Add token to cookie
 
-            const response = await request(app)
-                .get("/auth/self")
-                .set("Cookie", [`accessToken=${accessToken};`])
-                .send();
+            it("should not return 401 status code if token does not exists", async () => {
+                const userData = {
+                    firstName: "Aditya",
+                    lastName: "Vyas",
+                    email: "avyas8927@gmail.com",
+                    password: "Aditya123",
+                };
+                const userRepository = connection.getRepository(User);
+                await userRepository.save({
+                    ...userData,
+                    role: Roles.CUSTOMER,
+                });
+                // Add token to cookie
+                const response = await request(app).get("/auth/self").send();
 
-            // Assert
-            // Check if user id matches with the registerd user.
-            expect((response.body as Record<string, string>).id).toBe(data.id);
-        });
-
-        it("should not return the password field", async () => {
-            const userData = {
-                firstName: "Aditya",
-                lastName: "Vyas",
-                email: "avyas8927@gmail.com",
-                password: "Aditya123",
-            };
-            const userRepository = connection.getRepository(User);
-            const data = await userRepository.save({
-                ...userData,
-                role: Roles.CUSTOMER,
+                // Assert
+                // Check if user id matches with the registerd user.
+                expect(response.statusCode).toBe(401);
             });
-            // Generate TOKEN
-            const accessToken = jwks.token({
-                sub: String(data.id),
-                role: data.role,
+
+            it("should accept access token from Authorization Bearer header", async () => {
+                const accessToken = jwks.token({
+                    sub: "1",
+                    role: Roles.CUSTOMER,
+                });
+                const response = await request(app)
+                    .get("/auth/self")
+                    .set("Authorization", `Bearer ${accessToken}`)
+                    .send();
+                expect(response.statusCode).toBe(200);
             });
-            // Add token to cookie
 
-            const response = await request(app)
-                .get("/auth/self")
-                .set("Cookie", [`accessToken=${accessToken};`])
-                .send();
-
-            // Assert
-            // Check if user id matches with the registerd user.
-            expect(response.body as Record<string, string>).not.toHaveProperty(
-                "password",
-            );
-        });
-
-        it("should not return 401 status code if token does not exists", async () => {
-            const userData = {
-                firstName: "Aditya",
-                lastName: "Vyas",
-                email: "avyas8927@gmail.com",
-                password: "Aditya123",
-            };
-            const userRepository = connection.getRepository(User);
-            await userRepository.save({
-                ...userData,
-                role: Roles.CUSTOMER,
+            it("should fall back to cookie when Bearer value is the literal undefined", async () => {
+                const accessToken = jwks.token({
+                    sub: "1",
+                    role: Roles.CUSTOMER,
+                });
+                const response = await request(app)
+                    .get("/auth/self")
+                    .set("Authorization", "Bearer undefined")
+                    .set("Cookie", [`accessToken=${accessToken}`])
+                    .send();
+                expect(response.statusCode).toBe(200);
             });
-            // Add token to cookie
-            const response = await request(app).get("/auth/self").send();
-
-            // Assert
-            // Check if user id matches with the registerd user.
-            expect(response.statusCode).toBe(401);
-        });
-
-        it("should accept access token from Authorization Bearer header", async () => {
-            const accessToken = jwks.token({
-                sub: "1",
-                role: Roles.CUSTOMER,
-            });
-            const response = await request(app)
-                .get("/auth/self")
-                .set("Authorization", `Bearer ${accessToken}`)
-                .send();
-            expect(response.statusCode).toBe(200);
-        });
-
-        it("should fall back to cookie when Bearer value is the literal undefined", async () => {
-            const accessToken = jwks.token({
-                sub: "1",
-                role: Roles.CUSTOMER,
-            });
-            const response = await request(app)
-                .get("/auth/self")
-                .set("Authorization", "Bearer undefined")
-                .set("Cookie", [`accessToken=${accessToken}`])
-                .send();
-            expect(response.statusCode).toBe(200);
         });
     });
 
