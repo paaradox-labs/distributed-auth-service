@@ -1,31 +1,34 @@
 # Auth Service
 
-A robust and scalable authentication microservice built with Node.js, Express, TypeScript, and PostgreSQL.
+A robust authentication and user-management microservice built with Node.js, Express, TypeScript, and PostgreSQL. It supports **multi-tenant** organizations, JWT-based sessions with access and refresh tokens, and **role-based** admin APIs for tenants and users.
 
 ## 📋 Overview
 
-This authentication service is designed as part of a microservices architecture to handle user registration, login, and token management. It provides JWT-based authentication with access and refresh tokens, role-based access control, and secure cookie-based token storage.
+This service fits a microservices architecture: public registration and login, cookie-based tokens, JWKS for verifying access tokens elsewhere, and admin-only HTTP APIs to manage **tenants** and **users** (including assigning roles and tenant membership).
 
 ## 🚀 Features
 
 - **TypeScript**: Fully typed codebase with strict type checking
 - **Express.js v5**: Fast and minimalist web framework
 - **PostgreSQL**: Relational database with TypeORM
-- **JWT Authentication**: RS256 access tokens + HS256 refresh tokens
-- **Token Rotation**: Automatic refresh token rotation on each refresh
-- **Cookie-based Auth**: httpOnly, sameSite: strict cookies for security
-- **JWKS Support**: Public JSON Web Key Set for token verification
-- **Logout Support**: Secure logout with refresh token deletion and cookie clearing
-- **Database Migrations**: TypeORM migrations for schema management
-- **Input Validation**: express-validator for request validation
-- **Password Hashing**: bcrypt for secure password storage
-- **Logging**: Comprehensive logging with Winston
-- **Error Handling**: Global error handler with structured error responses
-- **Code Quality**: ESLint and Prettier for consistent code style
-- **Testing**: Jest testing framework with TypeScript support
-- **Git Hooks**: Pre-commit hooks with Husky and lint-staged
-- **Docker Support**: Containerized development environment
-- **Hot Reload**: Nodemon for automatic server restarts during development
+- **Multi-tenancy**: `Tenant` entity; users can belong to a tenant
+- **JWT authentication**: RS256 access tokens + HS256 refresh tokens
+- **Token rotation**: Refresh tokens rotate on each `/auth/refresh`
+- **Cookie-based auth**: httpOnly, `sameSite: strict` cookies
+- **JWKS**: Public JSON Web Key Set for token verification
+- **Role-based access**: Roles include `admin`, `customer`, and `manager`; JWT carries `role` for authorization
+- **Admin APIs**: CRUD for `/tenants` and `/users` (admin role required where noted)
+- **Logout**: Refresh token removal and cookie clearing
+- **Migrations**: TypeORM migrations (`pnpm run migration:run`, etc.)
+- **Input validation**: express-validator
+- **Password hashing**: bcrypt
+- **Logging**: Winston
+- **Error handling**: Global handler with structured JSON errors
+- **Code quality**: ESLint and Prettier
+- **Testing**: Jest with TypeScript
+- **Git hooks**: Husky and lint-staged
+- **Docker**: Optional PostgreSQL and dev container
+- **Hot reload**: Nodemon in development
 
 ## 🛠️ Tech Stack
 
@@ -36,12 +39,12 @@ This authentication service is designed as part of a microservices architecture 
 - **ORM**: TypeORM
 - **Authentication**: JWT (jsonwebtoken), express-jwt, jwks-rsa
 - **Validation**: express-validator
-- **Password Hashing**: bcrypt
+- **Password hashing**: bcrypt
 - **Logging**: Winston
 - **Testing**: Jest with ts-jest, supertest
-- **Code Quality**: ESLint, Prettier
-- **Process Management**: Nodemon
-- **Package Manager**: pnpm
+- **Code quality**: ESLint, Prettier
+- **Process management**: Nodemon
+- **Package manager**: pnpm
 - **Containerization**: Docker
 
 ## 📦 Installation
@@ -51,7 +54,7 @@ This authentication service is designed as part of a microservices architecture 
 - Node.js (v24 or higher)
 - pnpm
 - PostgreSQL
-- Docker (optional, for containerized development)
+- Docker (optional, for PostgreSQL or containerized dev)
 
 ### Setup
 
@@ -68,59 +71,59 @@ cd auth-service
 pnpm install
 ```
 
-3. Set up environment variables:
-
-```bash
-cp .env.example .env
-```
-
-4. Configure your `.env` file:
+3. Environment files are loaded by **NODE_ENV** as **`.env.<NODE_ENV>`** at the project root (for example `.env.dev` when `NODE_ENV=dev`). Create `.env.dev` with at least:
 
 ```env
 PORT=5501
-NODE_ENV=development
-DATABASE_URL=postgres://root:root@localhost:5432/auth_db
+NODE_ENV=dev
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_NAME=auth_db
 REFRESH_TOKEN_SECRET=your-refresh-token-secret
 JWKS_URI=http://localhost:5501/.well-known/jwks.json
 ```
 
-5. Generate RSA keys for JWT signing:
+4. Generate RSA keys for JWT signing:
 
 ```bash
 node scripts/generateKeys.mjs
 ```
 
-6. Start PostgreSQL (using Docker):
+5. Start PostgreSQL (Docker example):
 
 ```bash
 pnpm run docker:db
 ```
 
-7. Sync database schema:
+6. Apply database migrations:
 
 ```bash
-pnpm run typeorm schema:sync
+NODE_ENV=dev pnpm exec typeorm-ts-node-esm migration:run -d src/config/data-source.ts
 ```
+
+See `scripts/migration-commands.md` for `migration:generate` and other TypeORM CLI usage.
 
 ## 🏃‍♂️ Running the Application
 
-### Development Mode
+### Development
 
 ```bash
 pnpm run dev
 ```
 
-The server will start on the port specified in your `.env` file (default: 5501).
+Uses `NODE_ENV=dev` and listens on the port from config (default **5501**).
 
-### Using Docker
+### Docker (app)
 
-Build the Docker image:
+Build:
 
 ```bash
 pnpm run docker:build
 ```
 
-Run the container:
+Run (mounts the repo and uses your `.env`):
 
 ```bash
 pnpm run docker:run
@@ -128,301 +131,183 @@ pnpm run docker:run
 
 ## 🧪 Testing
 
-Run tests in watch mode:
+Run the full suite once (with coverage):
 
 ```bash
 pnpm test
 ```
 
+Watch mode:
+
+```bash
+pnpm run test:watch
+```
+
 ## 📝 Scripts
 
-| Script                                | Description                              |
-| ------------------------------------- | ---------------------------------------- |
-| `pnpm run dev`                        | Start development server with hot reload |
-| `pnpm run docker:build`               | Build Docker image                       |
-| `pnpm run docker:run`                 | Run application in Docker container      |
-| `pnpm run docker:db`                  | Start PostgreSQL container               |
-| `pnpm test`                           | Run tests in watch mode                  |
-| `pnpm run lint:check`                 | Check for linting errors                 |
-| `pnpm run lint:fix`                   | Fix linting errors automatically         |
-| `pnpm run format:check`               | Check code formatting                    |
-| `pnpm run format:fix`                 | Format code automatically                |
-| `pnpm run typeorm`                    | Run TypeORM CLI commands                 |
-| `pnpm run typeorm migration:generate` | Generate a new migration                 |
-| `pnpm run typeorm migration:run`      | Run pending migrations                   |
+| Script | Description |
+| --- | --- |
+| `pnpm run dev` | Dev server with hot reload (`NODE_ENV=dev`) |
+| `pnpm run build` | Compile TypeScript |
+| `pnpm run docker:build` | Build Docker image |
+| `pnpm run docker:run` | Run app container |
+| `pnpm run docker:db` | Start PostgreSQL container |
+| `pnpm test` | Jest with coverage (single run) |
+| `pnpm run test:watch` | Jest watch mode |
+| `pnpm run lint:check` | ESLint |
+| `pnpm run lint:fix` | ESLint with fix |
+| `pnpm run format:check` | Prettier check |
+| `pnpm run format:fix` | Prettier write |
+| `pnpm run migration:generate` | Generate migration from schema diff (pass path after `--`) |
+| `pnpm run migration:run` | Run pending migrations |
+| `pnpm run migration:create` | Create empty migration stub |
 
 ## 📁 Project Structure
 
 ```
 auth-service/
 ├── src/
-│   ├── config/          # Configuration files
-│   │   ├── index.ts     # App configuration
-│   │   ├── logger.ts    # Winston logger setup
-│   │   └── data-source.ts # TypeORM data source
-│   ├── controller/
-│   │   └── AuthController.ts # Authentication controller
-│   ├── entity/          # TypeORM entities
-│   │   ├── User.ts      # User entity
-│   │   └── RefreshTokens.ts # Refresh token entity
-│   ├── middlewares/
-│   │   ├── authenticate.ts # JWT authentication middleware
-│   │   └── validateRefreshToken.ts # Refresh token validation
-│   ├── routes/
-│   │   └── auth.ts      # Authentication routes
-│   ├── services/
-│   │   ├── UserService.ts # User operations
-│   │   ├── TokenService.ts # JWT token operations
-│   │   └── CredentialService.ts # Password operations
+│   ├── config/           # App config, logger, TypeORM data source
+│   ├── controller/       # Auth, User, Tenant controllers
+│   ├── entity/           # User, RefreshToken, Tenant
+│   ├── middlewares/      # authenticate, validateRefreshToken, parseRefreshToken, canAccess
+│   ├── migration/        # TypeORM migration files
+│   ├── routes/           # auth, user, tenant routes
+│   ├── services/         # User, Token, Credential, Tenant
 │   ├── validators/
-│   │   ├── register-validator.ts # Registration validation
-│   │   └── login-validator.ts # Login validation
 │   ├── types/
-│   │   └── index.ts     # TypeScript type definitions
-│   ├── constants/
-│   │   └── index.ts     # Application constants
-│   ├── app.ts           # Express app setup
-│   ├── server.ts        # Server entry point
-│   └── utils.ts         # Utility functions
-├── certs/               # RSA keys for JWT signing
-├── public/
-│   └── .well-known/
-│       └── jwks.json    # Public JWKS endpoint
+│   ├── constants/        # Roles (admin, customer, manager)
+│   ├── app.ts
+│   └── server.ts
+├── certs/                # RSA keys for JWT
+├── public/.well-known/   # jwks.json
 ├── scripts/
-│   ├── generateKeys.mjs # RSA key generation script
-│   └── convertPemToJwk.mjs # PEM to JWK conversion
-├── docker/
-│   └── dev/
-│       └── Dockerfile   # Development Dockerfile
-├── tests/               # Test files
-├── logs/                # Application logs
-├── .env.example         # Environment variables template
-└── package.json         # Project dependencies
+├── tests/
+├── logs/
+└── package.json
 ```
 
 ## 🔧 Configuration
 
+### Environment
+
+Config is read from **`.env.<NODE_ENV>`** (default file: `.env.dev` if `NODE_ENV` is unset). Database settings use **`DB_HOST`**, **`DB_PORT`**, **`DB_USERNAME`**, **`DB_PASSWORD`**, and **`DB_NAME`** (not a single `DATABASE_URL`).
+
 ### TypeScript
 
-The project uses strict TypeScript configuration with:
-
-- ES modules (`"module": "nodenext"`)
-- Strict type checking
-- Source maps for debugging
-- Declaration files generation
+ES modules (`"module": "nodenext"`), strict mode, source maps.
 
 ### Database
 
-- **ORM**: TypeORM with PostgreSQL
-- **Entities**: User, RefreshToken
-- **Connection**: Configured via `DATABASE_URL` in `.env`
+- **ORM**: TypeORM with PostgreSQL  
+- **Entities**: `User`, `RefreshToken`, `Tenant`  
+- **Users** may reference a **tenant** via a many-to-one relation.
 
-### Code Quality
+### Code quality
 
-- **ESLint**: Enforces code quality and consistency
-- **Prettier**: Ensures consistent code formatting
-- **Husky**: Git hooks for pre-commit checks
-- **lint-staged**: Runs linters on staged files
+ESLint, Prettier, Husky, lint-staged.
 
-## 🌐 API Endpoints
+## 🌐 API
 
-### Health Check
+### Health
 
-```
-GET /
-```
+`GET /` — plain text: `Welcome to Authentication Page`.
 
-Returns a welcome message to verify the service is running.
+### Authentication (`/auth`)
 
-**Response:**
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/auth/register` | Register; default role `customer`. Optional body field `tenantId` (number) to attach the user to a tenant. Sets cookies. |
+| POST | `/auth/login` | Login; sets cookies. |
+| GET | `/auth/self` | Current user. **Auth:** Bearer or `accessToken` cookie. |
+| POST | `/auth/refresh` | Rotate tokens. **Auth:** `refreshToken` cookie (via refresh validation middleware). |
+| POST | `/auth/logout` | Invalidate refresh token and clear cookies. **Auth:** access + refresh flow as implemented. |
 
-```
-Welcome to Authentication Page
-```
-
-### Authentication
-
-All auth endpoints are prefixed with `/auth`.
-
-#### Register User
-
-```
-POST /auth/register
-```
-
-Register a new user account.
-
-**Request Body:**
+**Register / login body (typical):**
 
 ```json
 {
-    "firstName": "string",
-    "lastName": "string",
-    "email": "string",
-    "password": "string"
+  "firstName": "string",
+  "lastName": "string",
+  "email": "string",
+  "password": "string"
 }
 ```
 
-**Response (201):**
+You may include `"tenantId": 1` on register when linking to an existing tenant.
+
+Successful register/login responses return user fields (role, etc.) and set **accessToken** (1h) and **refreshToken** (1y) as httpOnly cookies.
+
+### Tenants (`/tenants`)
+
+| Method | Path | Auth / role |
+| --- | --- | --- |
+| GET | `/tenants` | **Public** — list all tenants |
+| GET | `/tenants/:id` | **Authenticated**, role **admin** |
+| POST | `/tenants` | **Authenticated**, **admin** — body: `name`, `address` |
+| PATCH | `/tenants/:id` | **Authenticated**, **admin** — body: `name`, `address` |
+| DELETE | `/tenants/:id` | **Authenticated**, **admin** |
+
+### Users (`/users`)
+
+All routes require **authentication** and role **admin**.
+
+| Method | Path | Description |
+| --- | --- | --- |
+| POST | `/users` | Create user: `firstName`, `lastName`, `email`, `password`, `role`, `tenantId` |
+| GET | `/users` | List users |
+| GET | `/users/:id` | Get one user |
+| PATCH | `/users/:id` | Update `firstName`, `lastName`, `role` |
+| DELETE | `/users/:id` | Delete user |
+
+### JWKS
+
+`GET /.well-known/jwks.json` — public keys for verifying access tokens.
+
+### Errors
+
+Failed requests often return JSON in the form:
 
 ```json
 {
-    "id": 1,
-    "firstName": "string",
-    "lastName": "string",
-    "email": "string",
-    "role": "string"
+  "errors": [
+    {
+      "type": "ErrorName",
+      "msg": "message",
+      "path": "",
+      "location": ""
+    }
+  ]
 }
 ```
 
-Sets `accessToken` (1h) and `refreshToken` (1y) as httpOnly cookies.
-
-#### Login
-
-```
-POST /auth/login
-```
-
-Authenticate an existing user.
-
-**Request Body:**
-
-```json
-{
-    "email": "string",
-    "password": "string"
-}
-```
-
-**Response (200):**
-
-```json
-{
-    "id": 1,
-    "firstName": "string",
-    "lastName": "string",
-    "email": "string",
-    "role": "string"
-}
-```
-
-Sets `accessToken` (1h) and `refreshToken` (1y) as httpOnly cookies.
-
-#### Get Current User
-
-```
-GET /auth/self
-```
-
-Get the currently authenticated user's profile. Requires valid access token.
-
-**Authentication:** Bearer token in Authorization header OR `accessToken` cookie.
-
-**Response (200):**
-
-```json
-{
-    "id": 1,
-    "firstName": "string",
-    "lastName": "string",
-    "email": "string",
-    "role": "string"
-}
-```
-
-#### Refresh Tokens
-
-```
-POST /auth/refresh
-```
-
-Refresh access and refresh tokens. Requires valid refresh token. Implements token rotation.
-
-**Authentication:** `refreshToken` cookie required.
-
-**Response (200):**
-
-```json
-{
-    "id": 1
-}
-```
-
-Sets new `accessToken` and `refreshToken` cookies. Old refresh token is invalidated.
-
-#### Logout
-
-```
-POST /auth/logout
-```
-
-Log out the current user. Deletes the refresh token from the database and clears both `accessToken` and `refreshToken` cookies.
-
-**Authentication:** Requires valid `accessToken` and `refreshToken` cookies.
-
-**Response (200):**
-
-```json
-{}
-```
-
-### JWKS Endpoint
-
-```
-GET /.well-known/jwks.json
-```
-
-Returns the public JSON Web Key Set for token verification by other services.
+Validation errors may use express-validator’s `errors` array shape instead.
 
 ## 🔐 Security
 
-- **RS256** algorithm for access tokens (asymmetric)
-- **HS256** algorithm for refresh tokens (symmetric)
-- **httpOnly** cookies prevent XSS token theft
-- **sameSite: strict** prevents CSRF attacks
-- **Token rotation** ensures refresh tokens are single-use
-- **Revocation check** validates refresh tokens against database
-- **bcrypt** password hashing with salt rounds
+- **RS256** for access tokens; **HS256** for refresh tokens
+- **httpOnly** cookies; **sameSite: strict**
+- **Refresh token rotation** and DB-backed revocation
+- **bcrypt** for passwords
+- **JWT `role`** used by `canAccess` for admin routes
 
 ## 📊 Logging
 
-The service uses Winston for logging with the following features:
-
-- Separate log files for errors and combined logs
-- Structured logging format
-- Configurable log levels based on environment
-
-Logs are stored in the `logs/` directory:
-
-- `error.log`: Error-level logs
-- `combine.log`: All logs
+Winston writes under `logs/` (e.g. error and combined logs), with level driven by environment.
 
 ## 🐳 Docker
 
-The service includes a Dockerfile for development:
-
-- Based on Node.js 24
-- Exposes port 5501
-- Supports volume mounting for hot reload
-- Preserves node_modules in container
+- **docker/dev/Dockerfile**: Node 24–based dev image; port **5501**.
+- **`docker:db`**: local PostgreSQL for development.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. Fork the repository  
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)  
+3. Commit your changes  
+4. Push and open a Pull Request  
 
-### Code Style
-
-This project uses:
-
-- ESLint for linting
-- Prettier for formatting
-- Pre-commit hooks to ensure code quality
-
-All commits must pass linting and formatting checks.
+Commits should pass lint and format checks (Husky / lint-staged).
 
 ---
 

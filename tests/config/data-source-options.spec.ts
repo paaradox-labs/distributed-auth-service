@@ -38,6 +38,6 @@ describe("buildDataSourceOptions", () => {
         const opts = buildDataSourceOptions(false, db, entityClasses);
 
         expect(opts.entities).toEqual(entityClasses);
-        expect(opts.migrations).toEqual(["src/migrations/*.{ts,js}"]);
+        expect(opts.migrations).toEqual(["src/migration/*.{ts,js}"]);
     });
 });
