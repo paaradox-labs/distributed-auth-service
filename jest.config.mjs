@@ -9,6 +9,9 @@ export default {
         "^until-async$": "<rootDir>/tests/shims/until-async.cjs",
     },
     verbose: true,
+    collectCoverage: true,
+    coverageProvider: "v8",
+    collectCoverageFrom: ["src/**/*.ts", "!tests/**", "!**/node_modules/**"],
     transform: {
         "^.+\\.(ts|js)$": [
             "ts-jest",
