@@ -22,7 +22,7 @@ If your app already defaults to the right env file, you can omit it.
 
 | Placeholder     | Meaning                                              |
 | --------------- | ---------------------------------------------------- |
-| `<output_path>` | Base path for the file (no extension), e.g. `src/migrations/rename_tables` |
+| `<output_path>` | Base path for the file (no extension), e.g. `src/migration/rename_tables` |
 
 **Recommended** — avoids pnpm inserting a stray `--` before the path:
 
@@ -60,7 +60,7 @@ Creates an **empty** migration file (no schema diff). Use when you want to write
 
 | Placeholder     | Meaning                                      |
 | --------------- | -------------------------------------------- |
-| `<output_path>` | Where the new file should go, e.g. `src/migrations/MyMigration` |
+| `<output_path>` | Where the new file should go, e.g. `src/migration/MyMigration` |
 
 ```bash
 NODE_ENV=dev pnpm exec typeorm-ts-node-esm migration:create <output_path>

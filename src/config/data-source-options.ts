@@ -33,7 +33,7 @@ export function buildDataSourceOptions(
         synchronize: false,
         logging: false,
         entities: entityClasses,
-        migrations: omitMigrations ? [] : ["src/migrations/*.{ts,js}"],
+        migrations: omitMigrations ? [] : ["src/migration/*.{ts,js}"],
         subscribers: [],
     };
 }
