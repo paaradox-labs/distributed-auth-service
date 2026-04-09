@@ -8,6 +8,7 @@ import express, {
 } from "express";
 
 import logger from "./config/logger.js";
+import { httpErrorStatus } from "./utils/httpErrorStatus.js";
 
 import type { HttpError } from "http-errors";
 
@@ -37,7 +38,7 @@ app.use("/users", userRouter);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
     logger.error(err.message);
-    const statusCode = err.statusCode || err.status || 500;
+    const statusCode = httpErrorStatus(err);
 
     res.status(statusCode).json({
         errors: [

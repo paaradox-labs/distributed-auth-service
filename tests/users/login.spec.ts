@@ -81,6 +81,27 @@ describe("POST /auth/login", () => {
         });
     });
 
+    it("should return 400 when validation fails", async () => {
+        const response = await request(app).post("/auth/login").send({
+            password: "only-password",
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(Array.isArray(response.body.errors)).toBe(true);
+    });
+
+    it("should return 400 when the email is not registered", async () => {
+        const response = await request(app).post("/auth/login").send({
+            email: "nobody@example.com",
+            password: "SomeLongPass1",
+        });
+
+        expect(response.statusCode).toBe(400);
+        expect(
+            (response.body as { errors?: { msg?: string }[] }).errors?.[0]?.msg,
+        ).toBe("Email or password does not match");
+    });
+
     it("should return the 404 if email or password is wrong", async () => {
         //  Arrange:
         const userData = {
