@@ -21,6 +21,7 @@ describe("UserService error paths", () => {
                 email: "a@b.com",
                 password: "longpassword",
                 role: Roles.CUSTOMER,
+                tenantId: 1,
             }),
         ).rejects.toMatchObject({
             status: 500,
