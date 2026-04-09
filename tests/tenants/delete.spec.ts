@@ -16,12 +16,12 @@ describe("DELETE /tenants/:id", () => {
         const createJWKSMock = getCreateJWKSMock();
         jwks = createJWKSMock("http://localhost:5501");
         connection = await AppDataSource.initialize();
+        jwks.start();
     });
 
     beforeEach(async () => {
         await connection.dropDatabase();
         await connection.synchronize();
-        jwks.start();
 
         adminToken = jwks.token({
             sub: "1",
@@ -30,13 +30,10 @@ describe("DELETE /tenants/:id", () => {
     });
 
     afterAll(async () => {
+        jwks.stop();
         if (connection && connection.isInitialized) {
             await connection.destroy();
         }
-    });
-
-    afterEach(() => {
-        jwks.stop();
     });
 
     it("should return 200 and remove the tenant from the database", async () => {
