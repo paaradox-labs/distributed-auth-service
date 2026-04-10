@@ -15,6 +15,8 @@ export type DbConfigFields = {
     username: string | undefined;
     password: string | undefined;
     database: string | undefined;
+    /** Passed to node-postgres when the server requires TLS (e.g. Neon, Supabase, RDS). */
+    ssl?: PostgresDataSourceOptions["ssl"];
 };
 
 export function buildDataSourceOptions(
@@ -29,6 +31,7 @@ export function buildDataSourceOptions(
         username: String(db.username),
         password: String(db.password),
         database: String(db.database),
+        ...(db.ssl !== undefined ? { ssl: db.ssl } : {}),
 
         synchronize: false,
         logging: false,

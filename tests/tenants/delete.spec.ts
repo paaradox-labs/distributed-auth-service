@@ -15,8 +15,8 @@ describe("DELETE /tenants/:id", () => {
     beforeAll(async () => {
         const createJWKSMock = getCreateJWKSMock();
         jwks = createJWKSMock("http://localhost:5501");
-        connection = await AppDataSource.initialize();
         jwks.start();
+        connection = await AppDataSource.initialize();
     });
 
     beforeEach(async () => {
@@ -30,7 +30,7 @@ describe("DELETE /tenants/:id", () => {
     });
 
     afterAll(async () => {
-        jwks.stop();
+        jwks?.stop();
         if (connection && connection.isInitialized) {
             await connection.destroy();
         }
