@@ -34,11 +34,14 @@ jobs:
             - name: Test and coverage
               run: pnpm run test
               env:
+                  NODE_ENV: test
                   DB_HOST: ${{ secrets.TEST_DB_HOST }}
                   DB_PORT: ${{ secrets.TEST_DB_PORT }}
                   DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
                   DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
                   DB_NAME: ${{ secrets.TEST_DB_NAME }}
+                  # Hosted Postgres (Neon, Supabase, poolers, etc.) requires TLS; local .env.test omits this.
+                  DB_SSL: "true"
                   REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
                   JWKS_URI: ${{ secrets.JWKS_URI }}
                   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}

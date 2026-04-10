@@ -40,4 +40,15 @@ describe("buildDataSourceOptions", () => {
         expect(opts.entities).toEqual(entityClasses);
         expect(opts.migrations).toEqual(["src/migration/*.{ts,js}"]);
     });
+
+    it("passes ssl through to TypeORM when set (e.g. CI against hosted Postgres)", () => {
+        const ssl = { rejectUnauthorized: false };
+        const opts = buildDataSourceOptions(
+            true,
+            { ...db, ssl },
+            entityClasses,
+        );
+
+        expect(opts.ssl).toEqual(ssl);
+    });
 });

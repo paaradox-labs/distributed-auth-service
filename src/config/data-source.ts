@@ -20,6 +20,7 @@ export const AppDataSource = new DataSource(
             username: Config.DB_USERNAME,
             password: Config.DB_PASSWORD,
             database: Config.DB_NAME,
+            ssl: Config.POSTGRES_SSL,
         },
         [User, RefreshToken, Tenant],
     ),
