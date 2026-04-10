@@ -1,25 +1,20 @@
 import createHttpError from "http-errors";
 import jwt, { type JwtPayload } from "jsonwebtoken";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 import { Config } from "../config/index.js";
 import { RefreshToken } from "../entity/RefreshTokens.js";
 import { User } from "../entity/User.js";
 import type { Repository } from "typeorm";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 export class Tokenservice {
     constructor(private refreshTokenRepostory: Repository<RefreshToken>) {}
     generateAccessToken(payload: JwtPayload) {
-        let privateKey: Buffer;
+        let privateKey: string;
+        if (!Config.PRIVATE_KEY) {
+            const error = createHttpError(500, "SECRET_KEY is not set");
+            throw error;
+        }
         try {
-            privateKey = fs.readFileSync(
-                path.join(__dirname, "../../certs/private.pem"),
-            );
+            privateKey = Config.PRIVATE_KEY!;
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             const error = createHttpError(
