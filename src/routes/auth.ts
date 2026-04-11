@@ -1,5 +1,5 @@
 import express from "express";
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 
 import { AuthController } from "../controller/AuthController.js";
 
@@ -34,37 +34,40 @@ const authController = new AuthController(
     credentialService,
 );
 
-router.post(
-    "/register",
-    registerValidator,
-    (req: Request, res: Response, next: NextFunction) =>
-        authController.register(req, res, next),
-);
+router.post("/register", registerValidator, (async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    await authController.register(req, res, next);
+}) as RequestHandler);
 
-router.post(
-    "/login",
-    loginValidator,
-    (req: Request, res: Response, next: NextFunction) =>
-        authController.login(req, res, next),
-);
+router.post("/login", loginValidator, (async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    await authController.login(req, res, next);
+}) as RequestHandler);
 
-router.get("/self", authenticate, (req: Request, res: Response) =>
-    authController.self(req as AuthRequest, res),
-);
+router.get("/self", authenticate, (async (req: Request, res: Response) => {
+    await authController.self(req as AuthRequest, res);
+}) as RequestHandler);
 
-router.post(
-    "/refresh",
-    validateRefreshToken,
-    (req: Request, res: Response, next: NextFunction) =>
-        authController.refresh(req as AuthRequest, res, next),
-);
+router.post("/refresh", validateRefreshToken, (async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    await authController.refresh(req as AuthRequest, res, next);
+}) as RequestHandler);
 
-router.post(
-    "/logout",
-    authenticate,
-    parseRefreshToken,
-    (req: Request, res: Response, next: NextFunction) =>
-        authController.logout(req as AuthRequest, res, next),
-);
+router.post("/logout", authenticate, parseRefreshToken, (async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    await authController.logout(req as AuthRequest, res, next);
+}) as RequestHandler);
 
 export default router;
