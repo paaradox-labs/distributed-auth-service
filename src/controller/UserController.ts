@@ -45,7 +45,7 @@ export class UserController {
         const { firstName, lastName, role } = req.body;
         const userId = req.params.id;
 
-        if (isNaN(Number(userId))) {
+        if (Number.isNaN(Number(userId))) {
             next(createHttpError(400, "Invalid URL Param"));
             return;
         }
@@ -82,7 +82,7 @@ export class UserController {
     async getOne(req: Request, res: Response, next: NextFunction) {
         const userId = req.params.id;
 
-        if (isNaN(Number(userId))) {
+        if (Number.isNaN(Number(userId))) {
             next(createHttpError(400, "Invalid URL Param."));
             return;
         }
@@ -106,7 +106,7 @@ export class UserController {
     async destroy(req: Request, res: Response, next: NextFunction) {
         const userId = req.params.id;
 
-        if (isNaN(Number(userId))) {
+        if (Number.isNaN(Number(userId))) {
             next(createHttpError(400, "Invalid URL Param."));
             return;
         }
