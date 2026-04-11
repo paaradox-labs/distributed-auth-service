@@ -31,7 +31,7 @@ export function buildDataSourceOptions(
         username: String(db.username),
         password: String(db.password),
         database: String(db.database),
-        ...(db.ssl !== undefined ? { ssl: db.ssl } : {}),
+        ...(db.ssl === undefined ? {} : { ssl: db.ssl }),
 
         synchronize: false,
         logging: false,

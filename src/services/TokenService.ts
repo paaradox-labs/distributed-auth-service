@@ -17,8 +17,7 @@ export class Tokenservice {
         }
         try {
             privateKey = Config.PRIVATE_KEY!;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
+        } catch {
             const error = createHttpError(
                 500,
                 "Error while reading private key",
