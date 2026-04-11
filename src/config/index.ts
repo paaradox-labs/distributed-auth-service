@@ -26,15 +26,19 @@ const {
 } = process.env;
 
 /** Enables TLS for Postgres when the server rejects non-SSL connections (common for hosted DBs in CI). */
-function resolvePostgresSsl(): undefined | { rejectUnauthorized: boolean } {
-    const raw = DB_SSL ?? PGSSLMODE;
+export function resolvePostgresSsl(
+    dbSsl: string | undefined,
+    pgSslMode: string | undefined,
+    dbSslRejectUnauthorized: string | undefined,
+): undefined | { rejectUnauthorized: boolean } {
+    const raw = dbSsl ?? pgSslMode;
     if (raw === undefined || raw === "") {
         return undefined;
     }
     const v = raw.toLowerCase();
     if (v === "true" || v === "1" || v === "require") {
         return {
-            rejectUnauthorized: DB_SSL_REJECT_UNAUTHORIZED === "true",
+            rejectUnauthorized: dbSslRejectUnauthorized === "true",
         };
     }
     return undefined;
@@ -48,7 +52,11 @@ export const Config = {
     DB_USERNAME: DB_USERNAME,
     DB_PASSWORD: DB_PASSWORD,
     DB_NAME: DB_NAME,
-    POSTGRES_SSL: resolvePostgresSsl(),
+    POSTGRES_SSL: resolvePostgresSsl(
+        DB_SSL,
+        PGSSLMODE,
+        DB_SSL_REJECT_UNAUTHORIZED,
+    ),
     REFRESH_TOKEN_SECRET,
     JWKS_URI,
     PRIVATE_KEY,
