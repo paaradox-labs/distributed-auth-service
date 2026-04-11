@@ -10,10 +10,10 @@ import type { CredentialService } from "../services/CredentialService.js";
 import { Roles } from "../constants/index.js";
 export class AuthController {
     constructor(
-        private userService: UserService,
-        private logger: Logger,
-        private tokenService: Tokenservice,
-        private credentialService: CredentialService,
+        private readonly userService: UserService,
+        private readonly logger: Logger,
+        private readonly tokenService: Tokenservice,
+        private readonly credentialService: CredentialService,
     ) {}
 
     async register(

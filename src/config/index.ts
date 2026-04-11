@@ -1,6 +1,6 @@
-import path from "path";
+import path from "node:path";
 import { config } from "dotenv";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "node:url";
 import { resolveEnvFilePath } from "./env-file-path.js";
 
 const __filename = fileURLToPath(import.meta.url);

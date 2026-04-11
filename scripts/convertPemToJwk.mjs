@@ -3,6 +3,7 @@ import rsaPemToJwk from "rsa-pem-to-jwk";
 
 const privateKey = fs.readFileSync("./certs/private.pem");
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const jwk = rsaPemToJwk(
     privateKey,
     {
@@ -10,6 +11,3 @@ const jwk = rsaPemToJwk(
     },
     "public",
 );
-
-// eslint-disable-next-line no-undef
-console.log(JSON.stringify(jwk));
