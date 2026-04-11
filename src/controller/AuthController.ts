@@ -1,4 +1,4 @@
-import type { Response, NextFunction } from "express";
+import type { Request, Response, NextFunction } from "express";
 import type { AuthRequest, RegisterUserRequest } from "../types/index.js";
 import { UserService } from "../services/UserService.js";
 import type { Logger } from "winston";
@@ -8,6 +8,8 @@ import type { Tokenservice } from "../services/TokenService.js";
 import createHttpError from "http-errors";
 import type { CredentialService } from "../services/CredentialService.js";
 import { Roles } from "../constants/index.js";
+import type { User } from "../entity/User.js";
+
 export class AuthController {
     constructor(
         private readonly userService: UserService,
@@ -16,17 +18,68 @@ export class AuthController {
         private readonly credentialService: CredentialService,
     ) {}
 
+    /** Returns true when validation failed and a 400 response was sent. */
+    private validationFailed(req: Request, res: Response): boolean {
+        const result = validationResult(req);
+        if (!result.isEmpty()) {
+            res.status(400).json({
+                errors: result.array(),
+            });
+            return true;
+        }
+        return false;
+    }
+
+    private setAuthCookies(
+        res: Response,
+        accessToken: string,
+        refreshToken: string,
+    ) {
+        res.cookie("accessToken", accessToken, {
+            domain: "localhost",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60, // 1h
+            httpOnly: true, // Important
+        });
+
+        res.cookie("refreshToken", refreshToken, {
+            domain: "localhost",
+            sameSite: "strict",
+            maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
+            httpOnly: true, // Important
+        });
+    }
+
+    private badCredentials(next: NextFunction) {
+        next(createHttpError(400, "Email or password does not match"));
+    }
+
+    private async createSessionTokens(user: User) {
+        const payload: JwtPayload = {
+            sub: String(user.id),
+            role: user.role,
+        };
+
+        const accessToken = this.tokenService.generateAccessToken(payload);
+
+        const newRefreshToken =
+            await this.tokenService.persistRefreshToken(user);
+
+        const refreshToken = this.tokenService.generateRefreshToken({
+            ...payload,
+            id: String(newRefreshToken.id),
+        });
+
+        return { accessToken, refreshToken };
+    }
+
     async register(
         req: RegisterUserRequest,
         res: Response,
         next: NextFunction,
     ) {
-        // Validation
-        const result = validationResult(req);
-        if (!result.isEmpty()) {
-            return res.status(400).json({
-                errors: result.array(),
-            });
+        if (this.validationFailed(req, res)) {
+            return;
         }
 
         const { firstName, lastName, email, password, tenantId } = req.body;
@@ -48,35 +101,9 @@ export class AuthController {
 
             this.logger.info("User has been registered", { id: user.id });
 
-            const payload: JwtPayload = {
-                sub: String(user.id),
-                role: user.role,
-            };
-
-            const accessToken = this.tokenService.generateAccessToken(payload);
-
-            // Persist the refresh token
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user);
-
-            const refreshToken = await this.tokenService.generateRefreshToken({
-                ...payload,
-                id: String(newRefreshToken.id),
-            });
-
-            res.cookie("accessToken", accessToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60, // 1h
-                httpOnly: true, // Important
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
-                httpOnly: true, // Important
-            });
+            const { accessToken, refreshToken } =
+                await this.createSessionTokens(user);
+            this.setAuthCookies(res, accessToken, refreshToken);
 
             res.status(201).json(user);
         } catch (error) {
@@ -86,12 +113,8 @@ export class AuthController {
     }
 
     async login(req: RegisterUserRequest, res: Response, next: NextFunction) {
-        // Validation
-        const result = validationResult(req);
-        if (!result.isEmpty()) {
-            return res.status(400).json({
-                errors: result.array(),
-            });
+        if (this.validationFailed(req, res)) {
+            return;
         }
 
         const { email, password } = req.body;
@@ -110,11 +133,7 @@ export class AuthController {
             const user = await this.userService.findByEmailWithPassword(email);
 
             if (!user) {
-                const error = createHttpError(
-                    400,
-                    "Email or password does not match",
-                );
-                next(error);
+                this.badCredentials(next);
                 return;
             }
 
@@ -124,43 +143,13 @@ export class AuthController {
             );
 
             if (!passwordMatch) {
-                const error = createHttpError(
-                    400,
-                    "Email or password does not match",
-                );
-                next(error);
+                this.badCredentials(next);
                 return;
             }
 
-            const payload: JwtPayload = {
-                sub: String(user.id),
-                role: user.role,
-            };
-
-            const accessToken = this.tokenService.generateAccessToken(payload);
-
-            // Persist the refresh token
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user);
-
-            const refreshToken = await this.tokenService.generateRefreshToken({
-                ...payload,
-                id: String(newRefreshToken.id),
-            });
-
-            res.cookie("accessToken", accessToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60, // 1h
-                httpOnly: true, // Important
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
-                httpOnly: true, // Important
-            });
+            const { accessToken, refreshToken } =
+                await this.createSessionTokens(user);
+            this.setAuthCookies(res, accessToken, refreshToken);
 
             this.logger.info("User has been logged in", {
                 id: user.id,
@@ -185,48 +174,22 @@ export class AuthController {
 
     async refresh(req: AuthRequest, res: Response, next: NextFunction) {
         try {
-            const payload: JwtPayload = {
-                sub: req.auth.sub,
-                role: req.auth.role,
-            };
-
-            const accessToken = this.tokenService.generateAccessToken(payload);
-
             const user = await this.userService.findById(Number(req.auth.sub));
 
             if (!user) {
-                const error = createHttpError(
-                    400,
-                    "User with the token could not find",
+                next(
+                    createHttpError(400, "User with the token could not find"),
                 );
-                next(error);
                 return;
             }
-            // Persist the refresh token
-            const newRefreshToken =
-                await this.tokenService.persistRefreshToken(user);
 
-            const refreshToken = this.tokenService.generateRefreshToken({
-                ...payload,
-                id: String(newRefreshToken.id),
-            });
+            const { accessToken, refreshToken } =
+                await this.createSessionTokens(user);
 
             // Delete Old Refresh Token
             await this.tokenService.deleteRefreshToken(Number(req.auth.id));
 
-            res.cookie("accessToken", accessToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60, // 1h
-                httpOnly: true, // Important
-            });
-
-            res.cookie("refreshToken", refreshToken, {
-                domain: "localhost",
-                sameSite: "strict",
-                maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
-                httpOnly: true, // Important
-            });
+            this.setAuthCookies(res, accessToken, refreshToken);
 
             this.logger.info("User has been logged in", {
                 id: user.id,
