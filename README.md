@@ -27,7 +27,9 @@ This service fits a microservices architecture: public registration and login, c
 - **Code quality**: ESLint and Prettier
 - **Testing**: Jest with TypeScript
 - **Git hooks**: Husky and lint-staged
-- **Docker**: Optional PostgreSQL and dev container
+- **CI/CD**: GitHub Actions workflow
+- **Code analysis**: SonarQube integration
+- **Docker**: Production and dev containers
 - **Hot reload**: Nodemon in development
 
 ## 🛠️ Tech Stack
@@ -45,7 +47,9 @@ This service fits a microservices architecture: public registration and login, c
 - **Code quality**: ESLint, Prettier
 - **Process management**: Nodemon
 - **Package manager**: pnpm
-- **Containerization**: Docker
+- **Containerization**: Docker, Docker Compose
+- **CI/CD**: GitHub Actions
+- **Code analysis**: SonarQube
 
 ## 📦 Installation
 
@@ -297,8 +301,9 @@ Winston writes under `logs/` (e.g. error and combined logs), with level driven b
 
 ## 🐳 Docker
 
-- **docker/dev/Dockerfile**: Node 24–based dev image; port **5501**.
-- **`docker:db`**: local PostgreSQL for development.
+- **`docker/prod/Dockerfile`**: Production-optimized Node 24 image
+- **`docker/dev/Dockerfile`**: Development container with hot reload
+- **`docker:db`**: local PostgreSQL for development
 
 ## 🤝 Contributing
 
