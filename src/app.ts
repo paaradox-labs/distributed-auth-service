@@ -18,6 +18,7 @@ import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.js";
 
 const app: Express = express();
+app.disable("x-powered-by");
 app.use(
     express.static("public", {
         dotfiles: "allow",
