@@ -1,6 +1,6 @@
 import type { DataSource } from "typeorm";
 import { AppDataSource } from "../../src/config/data-source.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { User } from "../../src/entity/User.js";
 import { Roles } from "../../src/constants/index.js";
 import request from "supertest";
@@ -56,8 +56,8 @@ describe("POST /auth/login", () => {
             }
 
             // Assert:
-            let accessToken = null;
-            let refreshToken = null;
+            let accessToken: string | null = null;
+            let refreshToken: string | null = null;
 
             const cookies =
                 (response.headers as unknown as Headers)["set-cookie"] || [];

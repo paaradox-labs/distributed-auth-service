@@ -2,7 +2,7 @@ import type { DeepPartial, Repository } from "typeorm";
 import { User } from "../entity/User.js";
 import type { LimitedUserData, UserData } from "../types/index.js";
 import createHttpError from "http-errors";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export class UserService {
     constructor(private readonly userRepository: Repository<User>) {}
