@@ -1,7 +1,6 @@
 import { expressjwt } from "express-jwt";
 import { Config } from "../config/index.js";
-import type { RequestHandler } from "express";
-import type { Request } from "express";
+import type { Request, RequestHandler } from "express";
 import type { AuthCookie } from "../types/index.js";
 
 const parseRefreshToken: RequestHandler = expressjwt({

@@ -9,11 +9,9 @@ const startServer = async () => {
         await AppDataSource.initialize();
         logger.info("Database connected successfully");
         app.listen(PORT, () => {
-            {
-                logger.info(
-                    `Server listening on port: ${PORT}. Click here to open http://localhost:${PORT}`,
-                );
-            }
+            logger.info(
+                `Server listening on port: ${PORT}. Click here to open http://localhost:${PORT}`,
+            );
         });
     } catch (error) {
         logger.error(`Failed to start server: ${error}`);

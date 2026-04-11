@@ -1,12 +1,10 @@
 import { expressjwt } from "express-jwt";
 import { Config } from "../config/index.js";
-import type { RequestHandler } from "express";
-import type { Request } from "express";
-import type { AuthCookie } from "../types/index.js";
+import type { Request, RequestHandler } from "express";
+import type { IRefreshTokenPayload, AuthCookie } from "../types/index.js";
 import { AppDataSource } from "../config/data-source.js";
 import { RefreshToken } from "../entity/RefreshTokens.js";
 import logger from "../config/logger.js";
-import type { IRefreshTokenPayload } from "../types/index.js";
 
 const validateRefreshToken: RequestHandler = expressjwt({
     secret: Config.REFRESH_TOKEN_SECRET!,
@@ -27,10 +25,10 @@ const validateRefreshToken: RequestHandler = expressjwt({
                 },
             });
             return refreshToken === null;
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
             logger.error("Error while getting the refresh token", {
                 id: (token?.payload as IRefreshTokenPayload).id,
+                error: err,
             });
         }
         return true;

@@ -43,8 +43,7 @@ export class UserService {
 
         try {
             return await this.userRepository.save(newUser);
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
+        } catch {
             const error = createHttpError(
                 500,
                 "Failed to store data in database",
@@ -87,8 +86,7 @@ export class UserService {
                 lastName,
                 role,
             });
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
+        } catch {
             const error = createHttpError(
                 500,
                 "Failed to update the user in the database",
