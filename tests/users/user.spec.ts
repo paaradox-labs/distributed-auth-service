@@ -2,7 +2,7 @@ import type { DataSource } from "typeorm";
 import { AppDataSource } from "../../src/config/data-source.js";
 import app from "../../src/app.js";
 import request, { type Response } from "supertest";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { User } from "../../src/entity/User.js";
 import { Tenant } from "../../src/entity/Tenant.js";
 import { Roles } from "../../src/constants/index.js";
