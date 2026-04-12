@@ -21,7 +21,7 @@ This service fits a microservices architecture: public registration and login, c
 - **Logout**: Refresh token removal and cookie clearing
 - **Migrations**: TypeORM migrations (`pnpm run migration:run`, etc.)
 - **Input validation**: express-validator
-- **Password hashing**: bcrypt
+- **Password hashing**: bcryptjs
 - **Logging**: Winston
 - **Error handling**: Global handler with structured JSON errors
 - **Code quality**: ESLint and Prettier
@@ -41,7 +41,7 @@ This service fits a microservices architecture: public registration and login, c
 - **ORM**: TypeORM
 - **Authentication**: JWT (jsonwebtoken), express-jwt, jwks-rsa
 - **Validation**: express-validator
-- **Password hashing**: bcrypt
+- **Password hashing**: bcryptjs
 - **Logging**: Winston
 - **Testing**: Jest with ts-jest, supertest
 - **Code quality**: ESLint, Prettier
@@ -292,7 +292,7 @@ Validation errors may use express-validator’s `errors` array shape instead.
 - **RS256** for access tokens; **HS256** for refresh tokens
 - **httpOnly** cookies; **sameSite: strict**
 - **Refresh token rotation** and DB-backed revocation
-- **bcrypt** for passwords
+- **bcryptjs** for passwords
 - **JWT `role`** used by `canAccess` for admin routes
 
 ## 📊 Logging
