@@ -13,6 +13,21 @@ jobs:
         name: Build the project
         runs-on: blacksmith-4vcpu-ubuntu-2404
         # if: github.event_name == 'pull_request'
+        # Ephemeral Postgres on the runner network — avoids remote DB latency/TLS in integration tests.
+        services:
+            postgres:
+                image: postgres:16-alpine
+                env:
+                    POSTGRES_USER: ci
+                    POSTGRES_PASSWORD: ci
+                    POSTGRES_DB: auth_ci
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U ci -d auth_ci"
+                    --health-interval 4s
+                    --health-timeout 5s
+                    --health-retries 10
         steps:
             - uses: actions/checkout@v4
             - name: Setup Node.js
@@ -34,13 +49,13 @@ jobs:
               run: pnpm run test
               env:
                   NODE_ENV: test
-                  DB_HOST: ${{ secrets.TEST_DB_HOST }}
-                  DB_PORT: ${{ secrets.TEST_DB_PORT }}
-                  DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
-                  DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-                  DB_NAME: ${{ secrets.TEST_DB_NAME }}
-                  # Hosted Postgres (Neon, Supabase, poolers, etc.) requires TLS; local .env.test omits this.
-                  DB_SSL: "true"
+                  # Use localhost: the service publishes 5432 on the host; some runners (e.g. Blacksmith) do not resolve the `postgres` service hostname.
+                  DB_HOST: localhost
+                  DB_PORT: "5432"
+                  DB_USERNAME: ci
+                  DB_PASSWORD: ci
+                  DB_NAME: auth_ci
+                  # Local Postgres in CI does not require TLS; omit DB_SSL / PGSSLMODE.
                   REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
                   JWKS_URI: ${{ secrets.JWKS_URI }}
                   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
