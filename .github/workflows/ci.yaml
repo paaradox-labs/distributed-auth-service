@@ -49,8 +49,8 @@ jobs:
               run: pnpm run test
               env:
                   NODE_ENV: test
-                  # Service hostname matches the `services.postgres` key (same Docker network as the runner job).
-                  DB_HOST: postgres
+                  # Use localhost: the service publishes 5432 on the host; some runners (e.g. Blacksmith) do not resolve the `postgres` service hostname.
+                  DB_HOST: localhost
                   DB_PORT: "5432"
                   DB_USERNAME: ci
                   DB_PASSWORD: ci
