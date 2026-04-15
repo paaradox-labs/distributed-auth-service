@@ -7,6 +7,8 @@ import express, {
     type Response,
 } from "express";
 
+import cors from "cors";
+
 import logger from "./config/logger.js";
 import { httpErrorStatus } from "./utils/httpErrorStatus.js";
 
@@ -16,8 +18,15 @@ import authRouter from "./routes/auth.js";
 import tenantRouter from "./routes/tenant.js";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.js";
+import { Config } from "./config/index.js";
 
 const app: Express = express();
+app.use(
+    cors({
+        origin: [Config.FRONTEND_URL!],
+        credentials: true,
+    }),
+);
 app.disable("x-powered-by");
 app.use(
     express.static("public", {
