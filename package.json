@@ -20,7 +20,8 @@
         "prepare": "husky",
         "migration:generate": "typeorm-ts-node-esm migration:generate",
         "migration:run": "typeorm-ts-node-esm migration:run",
-        "migration:create": "typeorm-ts-node-esm migration:create"
+        "migration:create": "typeorm-ts-node-esm migration:create",
+        "seed": "NODE_ENV=dev tsx src/seed.ts"
     },
     "author": "Mr. Paradox avyas8927@gmail.com",
     "license": "ISC",
