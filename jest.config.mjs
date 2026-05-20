@@ -20,6 +20,7 @@ export default {
         "!src/types/**",
         // TypeORM entity metadata inflates branch counts without meaningful runtime tests.
         "!src/entity/**",
+        "!src/seed.ts",
     ],
     transform: {
         "^.+\\.(ts|js)$": [
