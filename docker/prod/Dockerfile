@@ -12,7 +12,7 @@ WORKDIR /app
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 COPY .npmrc ./
-COPY pnpm.config.cjs ./
+COPY pnpm.config.mjs ./
 
 RUN pnpm install --frozen-lockfile --ignore-scripts --config.minimum-release-age=0
 
@@ -37,7 +37,7 @@ WORKDIR /app
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 COPY .npmrc ./
-COPY pnpm.config.cjs ./
+COPY pnpm.config.mjs ./
 
 RUN pnpm install --frozen-lockfile --ignore-scripts --config.minimum-release-age=0
 

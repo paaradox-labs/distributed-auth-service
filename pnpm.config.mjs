@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   overrides: {
     "jose": "4.15.9",
     "handlebars": "4.7.9",
