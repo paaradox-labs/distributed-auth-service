@@ -5,7 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "dev": "cross-env NODE_ENV=dev nodemon",
+        "dev": "cross-env NODE_ENV=dev tsx watch src/server.ts",
         "build": "tsc -p tsconfig.json",
         "docker:build": "docker build -t auth-service:dev -f docker/dev/Dockerfile .",
         "docker:run": "docker run --rm -it -v $(pwd):/usr/src/app -v /usr/src/app/node_modules --env-file $(pwd)/.env -p 5501:5501 -e NODE_ENV=dev auth-service:dev",
@@ -43,7 +43,6 @@
         "jest": "^30.2.0",
         "lint-staged": "^16.2.7",
         "mock-jwks": "^3.3.4",
-        "nodemon": "^3.1.11",
         "prettier": "3.6.2",
         "ts-jest": "^29.4.6",
         "ts-node": "^10.9.2",
