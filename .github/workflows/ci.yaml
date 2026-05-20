@@ -13,6 +13,8 @@ jobs:
         name: Build the project
         runs-on: blacksmith-4vcpu-ubuntu-2404
         # if: github.event_name == 'pull_request'
+        env:
+            npm_config_minimum_release_age: "0"
         # Ephemeral Postgres on the runner network — avoids remote DB latency/TLS in integration tests.
         services:
             postgres:
@@ -30,6 +32,8 @@ jobs:
                     --health-retries 10
         steps:
             - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
@@ -40,13 +44,13 @@ jobs:
                   version: latest
 
             - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+              run: pnpm --config.minimum-release-age=0 install --frozen-lockfile --ignore-scripts
 
             - name: Run eslint
-              run: pnpm run lint:fix
+              run: pnpm --config.minimum-release-age=0 run lint:fix
 
             - name: Test and coverage
-              run: pnpm run test
+              run: pnpm --config.minimum-release-age=0 run test
               env:
                   NODE_ENV: test
                   # Use localhost: the service publishes 5432 on the host; some runners (e.g. Blacksmith) do not resolve the `postgres` service hostname.
@@ -60,7 +64,7 @@ jobs:
                   JWKS_URI: ${{ secrets.JWKS_URI }}
                   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
             - name: Build-ts
-              run: pnpm build
+              run: pnpm --config.minimum-release-age=0 run build
 
             - name: SonarCloud Scan
               uses: SonarSource/sonarcloud-github-action@master
