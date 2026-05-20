@@ -15,13 +15,14 @@ jobs:
         # if: github.event_name == 'pull_request'
         env:
             npm_config_minimum_release_age: "0"
+            CI_DB_PASSWORD: ci_postgres_${{ github.run_id }}
         # Ephemeral Postgres on the runner network — avoids remote DB latency/TLS in integration tests.
         services:
             postgres:
                 image: postgres:16-alpine
                 env:
                     POSTGRES_USER: ci
-                    POSTGRES_PASSWORD: ci
+                    POSTGRES_PASSWORD: ${{ env.CI_DB_PASSWORD }}
                     POSTGRES_DB: auth_ci
                 ports:
                     - 5432:5432
@@ -57,7 +58,7 @@ jobs:
                   DB_HOST: localhost
                   DB_PORT: "5432"
                   DB_USERNAME: ci
-                  DB_PASSWORD: ci
+                  DB_PASSWORD: ${{ env.CI_DB_PASSWORD }}
                   DB_NAME: auth_ci
                   # Local Postgres in CI does not require TLS; omit DB_SSL / PGSSLMODE.
                   REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
