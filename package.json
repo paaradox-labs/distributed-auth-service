@@ -51,9 +51,6 @@
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.46.2"
     },
-    "pnpm": {
-        "minimumReleaseAge": 0
-    },
     "lint-staged": {
         "*.ts": [
             "npm run format:fix",
