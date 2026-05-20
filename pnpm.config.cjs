@@ -8,5 +8,6 @@ module.exports = {
     "brace-expansion@^1": "1.1.13",
     "brace-expansion@^2": "2.0.3",
     "brace-expansion@^5": "5.0.5"
-  }
+  },
+  onlyBuiltDependencies: ["esbuild", "msw", "unrs-resolver"]
 }

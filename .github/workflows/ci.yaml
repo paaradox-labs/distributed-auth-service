@@ -40,7 +40,7 @@ jobs:
                   version: latest
 
             - name: Install dependencies
-              run: pnpm install --frozen-lockfile --config.minimum-release-age=0 --config.onlyBuiltDependencies=esbuild,msw,unrs-resolver
+              run: pnpm install --frozen-lockfile --config.minimum-release-age=0
 
             - name: Run eslint
               run: pnpm run lint:fix
