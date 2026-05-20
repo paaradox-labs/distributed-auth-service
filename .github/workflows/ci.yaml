@@ -40,7 +40,7 @@ jobs:
                   version: latest
 
             - name: Install dependencies
-              run: pnpm install
+              run: pnpm install --frozen-lockfile --no-verify-supply-chain
 
             - name: Run eslint
               run: pnpm run lint:fix
