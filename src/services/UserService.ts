@@ -99,7 +99,7 @@ export class UserService {
     }
 
     async getAll() {
-        return await this.userRepository.find();
+        return await this.userRepository.find({ relations: { tenant: true } });
     }
 
     async deleteById(userId: number) {
