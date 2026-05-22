@@ -1,6 +1,10 @@
 import type { DeepPartial, Repository } from "typeorm";
 import { User } from "../entity/User.js";
-import type { LimitedUserData, UserData } from "../types/index.js";
+import type {
+    LimitedUserData,
+    UserData,
+    UserQueryParams,
+} from "../types/index.js";
 import createHttpError from "http-errors";
 import bcrypt from "bcryptjs";
 
@@ -98,8 +102,15 @@ export class UserService {
         }
     }
 
-    async getAll() {
-        return await this.userRepository.find({ relations: { tenant: true } });
+    async getAll(validatedQuery: UserQueryParams) {
+        const queryBuilder = this.userRepository.createQueryBuilder("user");
+        const result = await queryBuilder
+            .leftJoinAndSelect("user.tenant", "tenant")
+            .skip((validatedQuery.currentPage - 1) * validatedQuery.perPage)
+            .take(validatedQuery.perPage)
+            .getManyAndCount();
+        return result;
+        // return await this.userRepository.find({ relations: { tenant: true } });
     }
 
     async deleteById(userId: number) {
