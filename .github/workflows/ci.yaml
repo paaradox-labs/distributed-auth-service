@@ -45,13 +45,13 @@ jobs:
                   version: latest
 
             - name: Install dependencies
-              run: pnpm --config.minimum-release-age=0 install --frozen-lockfile --ignore-scripts
+              run: pnpm install --frozen-lockfile --ignore-scripts
 
             - name: Run eslint
-              run: pnpm --config.minimum-release-age=0 run lint:fix
+              run: pnpm run lint:fix
 
             - name: Test and coverage
-              run: pnpm --config.minimum-release-age=0 run test
+              run: pnpm run test
               env:
                   NODE_ENV: test
                   # Use localhost: the service publishes 5432 on the host; some runners (e.g. Blacksmith) do not resolve the `postgres` service hostname.
@@ -65,10 +65,10 @@ jobs:
                   JWKS_URI: ${{ secrets.JWKS_URI }}
                   PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
             - name: Build-ts
-              run: pnpm --config.minimum-release-age=0 run build
+              run: pnpm run build
 
             - name: SonarCloud Scan
-              uses: SonarSource/sonarcloud-github-action@master
+              uses: SonarSource/sonarqube-scan-action@master
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
