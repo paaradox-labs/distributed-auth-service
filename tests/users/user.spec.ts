@@ -387,7 +387,7 @@ describe("Auth routes", () => {
                     .set("Cookie", [`accessToken=${adminToken}`]);
 
                 expect(response.status).toBe(200);
-                expect(response.body).toEqual([]);
+                expect(response.body.data).toEqual([]);
             });
 
             it("should return every user", async () => {
@@ -412,9 +412,9 @@ describe("Auth routes", () => {
                     .set("Cookie", [`accessToken=${adminToken}`]);
 
                 expect(response.status).toBe(200);
-                expect(response.body).toHaveLength(2);
+                expect(response.body.data).toHaveLength(2);
 
-                const emails = (response.body as { email: string }[]).map(
+                const emails = (response.body.data as { email: string }[]).map(
                     (u) => u.email,
                 );
 

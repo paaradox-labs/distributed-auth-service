@@ -103,8 +103,9 @@ export class UserService {
     }
 
     async getAll(validatedQuery: UserQueryParams) {
-        const queryBuilder = this.userRepository.createQueryBuilder();
+        const queryBuilder = this.userRepository.createQueryBuilder("user");
         const result = await queryBuilder
+            .leftJoinAndSelect("user.tenant", "tenant")
             .skip((validatedQuery.currentPage - 1) * validatedQuery.perPage)
             .take(validatedQuery.perPage)
             .getManyAndCount();
