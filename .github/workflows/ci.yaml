@@ -45,7 +45,7 @@ jobs:
                   version: latest
 
             - name: Install dependencies
-              run: pnpm --config.minimum-release-age=0 install --frozen-lockfile --ignore-scripts
+              run: pnpm install --frozen-lockfile --ignore-scripts
 
             - name: Run eslint
               run: pnpm --config.minimum-release-age=0 run lint:fix
