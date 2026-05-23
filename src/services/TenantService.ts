@@ -13,7 +13,7 @@ export class TenantService {
         const queryBuilder = this.tenantRepository.createQueryBuilder("tenant");
 
         if (validatedQuery.q) {
-            const searchTerm = `${validatedQuery.q}`;
+            const searchTerm = `%${validatedQuery.q}%`;
 
             queryBuilder.where(
                 "CONCAT(tenant.name, ' ', tenant.address) ILike :q",
