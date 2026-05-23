@@ -15,10 +15,10 @@ export class UserController {
         private readonly logger: Logger,
     ) {}
     async create(req: CreateUserRequest, res: Response, next: NextFunction) {
-        // Validate
+        // Validation
         const result = validationResult(req);
         if (!result.isEmpty()) {
-            return res.status(400).json({ errors: result.array() });
+            return next(createHttpError(400, result.array()[0]?.msg as string));
         }
         const { firstName, lastName, email, password, tenantId, role } =
             req.body;
