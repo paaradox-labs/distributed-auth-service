@@ -473,7 +473,10 @@ describe("Auth routes", () => {
         });
 
         describe("PATCH /users/:id", () => {
-            it("should update firstName, lastName, and role", async () => {
+            it("should update firstName, lastName, role, email & tenantId", async () => {
+                const tenant = await createTenant(
+                    connection.getRepository(Tenant),
+                );
                 const userRepository = connection.getRepository(User);
                 const saved = await userRepository.save({
                     firstName: "Old",
@@ -490,6 +493,8 @@ describe("Auth routes", () => {
                         firstName: "New",
                         lastName: "Person",
                         role: Roles.ADMIN,
+                        email: "update@example.com",
+                        tenantId: tenant.id,
                     });
 
                 expect(response.status).toBe(200);
@@ -497,14 +502,20 @@ describe("Auth routes", () => {
 
                 const row = await userRepository.findOne({
                     where: { id: saved.id },
+                    relations: ["tenant"],
                 });
 
                 expect(row?.firstName).toBe("New");
                 expect(row?.lastName).toBe("Person");
                 expect(row?.role).toBe(Roles.ADMIN);
+                expect(row?.email).toBe("update@example.com");
+                expect(row?.tenant.id).toBe(tenant.id);
             });
 
             it("should return 400 when validation fails on update", async () => {
+                const tenant = await createTenant(
+                    connection.getRepository(Tenant),
+                );
                 const userRepository = connection.getRepository(User);
                 const saved = await userRepository.save({
                     firstName: "Old",
@@ -521,6 +532,8 @@ describe("Auth routes", () => {
                         firstName: "",
                         lastName: "",
                         role: "",
+                        email: "test@example.com",
+                        tenantId: tenant.id,
                     });
 
                 expect(response.status).toBe(400);
@@ -528,6 +541,9 @@ describe("Auth routes", () => {
             });
 
             it("should return 400 when id is not a number", async () => {
+                const tenant = await createTenant(
+                    connection.getRepository(Tenant),
+                );
                 const response = await request(app)
                     .patch("/users/not-a-number")
                     .set("Cookie", [`accessToken=${adminToken}`])
@@ -535,6 +551,8 @@ describe("Auth routes", () => {
                         firstName: "A",
                         lastName: "B",
                         role: Roles.CUSTOMER,
+                        email: "test@example.com",
+                        tenantId: tenant.id,
                     });
 
                 expect(response.status).toBe(400);
