@@ -41,7 +41,7 @@ describe("GET /tenants and GET /tenants/:id", () => {
             const response = await request(app).get("/tenants").send();
 
             expect(response.statusCode).toBe(200);
-            expect(response.body).toEqual([]);
+            expect(response.body.data).toEqual([]);
         });
 
         it("should return 200 and all tenants when rows exist", async () => {
@@ -54,9 +54,9 @@ describe("GET /tenants and GET /tenants/:id", () => {
             const response = await request(app).get("/tenants").send();
 
             expect(response.statusCode).toBe(200);
-            expect(Array.isArray(response.body)).toBe(true);
-            expect(response.body).toHaveLength(1);
-            expect(response.body[0]).toMatchObject({
+            expect(Array.isArray(response.body.data)).toBe(true);
+            expect(response.body.data).toHaveLength(1);
+            expect(response.body.data[0]).toMatchObject({
                 name: "Acme Corp",
                 address: "1 Main St",
             });
