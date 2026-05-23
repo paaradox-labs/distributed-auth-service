@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import type { HttpError } from "http-errors";
 import { v4 as uuid4 } from "uuid";
 import logger from "../config/logger.js";
@@ -7,6 +7,8 @@ export const globalErrorHandler = (
     err: HttpError,
     req: Request,
     res: Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    next: NextFunction,
 ) => {
     const errorId = uuid4();
     const statusCode = err.status || 500;
