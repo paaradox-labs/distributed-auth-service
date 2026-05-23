@@ -124,12 +124,12 @@ export class UserService {
         }
 
         const result = await queryBuilder
+            .leftJoinAndSelect("user.tenant", "tenant")
             .skip((validatedQuery.currentPage - 1) * validatedQuery.perPage)
             .take(validatedQuery.perPage)
             .orderBy("user.id", "DESC")
             .getManyAndCount();
         return result;
-        // return await this.userRepository.find({ relations: { tenant: true } });
     }
 
     async deleteById(userId: number) {
