@@ -1,4 +1,9 @@
-import express, { type NextFunction, type Response } from "express";
+import express, {
+    type RequestHandler,
+    type Request,
+    type NextFunction,
+    type Response,
+} from "express";
 import { TenantController } from "../controller/TenantController.js";
 import { TenantService } from "../services/TenantService.js";
 import { AppDataSource } from "../config/data-source.js";
@@ -9,6 +14,7 @@ import { canAccess } from "../middlewares/canAccess.js";
 import { Roles } from "../constants/index.js";
 import type { CreateTenantRequest } from "../types/index.js";
 import tenantValidator from "../validators/tenant-validator.js";
+import listUserValidator from "../validators/list-user-validator.js";
 
 const router: ReturnType<typeof express.Router> = express.Router();
 
@@ -18,7 +24,7 @@ const tenantController = new TenantController(tenantService, logger);
 
 router.post(
     "/",
-    authenticate,
+    authenticate as RequestHandler,
     tenantValidator,
     canAccess([Roles.ADMIN]),
     (req: CreateTenantRequest, res: Response, next: NextFunction) =>
@@ -27,7 +33,7 @@ router.post(
 
 router.patch(
     "/:id",
-    authenticate,
+    authenticate as RequestHandler,
     tenantValidator,
     canAccess([Roles.ADMIN]),
     (req: CreateTenantRequest, res: Response, next: NextFunction) =>
@@ -36,15 +42,23 @@ router.patch(
 
 router.delete(
     "/:id",
-    authenticate,
+    authenticate as RequestHandler,
     canAccess([Roles.ADMIN]),
     (req, res, next) => tenantController.destroy(req, res, next),
 );
 
-router.get("/", (req, res, next) => tenantController.getAll(req, res, next));
+router.get(
+    "/",
+    listUserValidator,
+    (req: Request, res: Response, next: NextFunction) =>
+        tenantController.getAll(req, res, next),
+);
 
-router.get("/:id", authenticate, canAccess([Roles.ADMIN]), (req, res, next) =>
-    tenantController.getOne(req, res, next),
+router.get(
+    "/:id",
+    authenticate as RequestHandler,
+    canAccess([Roles.ADMIN]),
+    (req, res, next) => tenantController.getOne(req, res, next),
 );
 
 export default router;

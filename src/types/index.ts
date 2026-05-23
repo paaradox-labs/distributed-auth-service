@@ -61,3 +61,9 @@ export interface UserQueryParams {
     q: string;
     role: string;
 }
+
+export interface TenantQueryParams {
+    q: string;
+    perPage: number;
+    currentPage: number;
+}
