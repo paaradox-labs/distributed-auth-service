@@ -5,6 +5,7 @@ import type {
     UserData,
     UserQueryParams,
 } from "../types/index.js";
+import { Roles } from "../constants/index.js";
 import createHttpError from "http-errors";
 import bcrypt from "bcryptjs";
 
@@ -41,7 +42,7 @@ export class UserService {
             password: hashedPassword,
             role,
         };
-        if (tenantId !== undefined) {
+        if (typeof tenantId === "number" && !Number.isNaN(tenantId)) {
             newUser.tenant = { id: tenantId };
         }
 
@@ -93,7 +94,11 @@ export class UserService {
                 lastName,
                 role,
                 email,
-                ...(tenantId !== undefined ? { tenant: { id: tenantId } } : {}),
+                ...(role === Roles.ADMIN
+                    ? ({ tenant: null } as never)
+                    : typeof tenantId === "number" && !Number.isNaN(tenantId)
+                      ? { tenant: { id: tenantId } }
+                      : {}),
             });
         } catch {
             const error = createHttpError(

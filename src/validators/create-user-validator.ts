@@ -42,11 +42,30 @@ export default checkSchema({
     },
     tenantId: {
         errorMessage: "Tenant ID is required",
-        notEmpty: true,
-        isInt: {
-            options: { min: 1 },
-            errorMessage: "Tenant ID must be a positive integer",
+        custom: {
+            options: (value, { req }) => {
+                const num = Number(value);
+                const role = req.body.role;
+                if (role === Roles.ADMIN) {
+                    return true;
+                }
+                if (!value) {
+                    throw new Error("Tenant ID is required");
+                }
+                if (!Number.isInteger(num) || num < 1) {
+                    throw new Error("Tenant ID must be a positive integer");
+                }
+                return true;
+            },
         },
-        toInt: true,
+        customSanitizer: {
+            options: (value, { req }) => {
+                if (req.body.role === Roles.ADMIN) {
+                    return undefined;
+                }
+                const num = Number(value);
+                return Number.isNaN(num) ? undefined : num;
+            },
+        },
     },
 });
