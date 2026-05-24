@@ -62,14 +62,14 @@ export class UserService {
             where: {
                 email,
             },
-            select: [
-                "id",
-                "firstName",
-                "lastName",
-                "email",
-                "role",
-                "password",
-            ],
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                role: true,
+                password: true,
+            },
         });
     }
 

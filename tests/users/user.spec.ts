@@ -328,7 +328,7 @@ describe("Auth routes", () => {
 
                 const userRepository = connection.getRepository(User);
                 const users = await userRepository.find({
-                    select: ["password"],
+                    select: { password: true },
                 });
 
                 expect(users).toHaveLength(1);
@@ -502,7 +502,7 @@ describe("Auth routes", () => {
 
                 const row = await userRepository.findOne({
                     where: { id: saved.id },
-                    relations: ["tenant"],
+                    relations: { tenant: true },
                 });
 
                 expect(row?.firstName).toBe("New");
