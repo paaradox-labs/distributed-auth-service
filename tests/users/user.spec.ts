@@ -492,7 +492,7 @@ describe("Auth routes", () => {
                     .send({
                         firstName: "New",
                         lastName: "Person",
-                        role: Roles.ADMIN,
+                        role: Roles.MANAGER,
                         email: "update@example.com",
                         tenantId: tenant.id,
                     });
@@ -507,7 +507,7 @@ describe("Auth routes", () => {
 
                 expect(row?.firstName).toBe("New");
                 expect(row?.lastName).toBe("Person");
-                expect(row?.role).toBe(Roles.ADMIN);
+                expect(row?.role).toBe(Roles.MANAGER);
                 expect(row?.email).toBe("update@example.com");
                 expect(row?.tenant.id).toBe(tenant.id);
             });
