@@ -58,6 +58,7 @@ export class AuthController {
         const payload: JwtPayload = {
             sub: String(user.id),
             role: user.role,
+            tenant: user.tenant ? String(user.tenant?.id) : "",
         };
 
         const accessToken = this.tokenService.generateAccessToken(payload);
@@ -176,6 +177,14 @@ export class AuthController {
 
     async refresh(req: AuthRequest, res: Response, next: NextFunction) {
         try {
+            const payload: JwtPayload = {
+                sub: req.auth.sub,
+                role: req.auth.role,
+                tenant: req.auth.tenant,
+            };
+
+            const accessToken = this.tokenService.generateAccessToken(payload);
+
             const user = await this.userService.findById(Number(req.auth.sub));
 
             if (!user) {
@@ -185,8 +194,7 @@ export class AuthController {
                 return;
             }
 
-            const { accessToken, refreshToken } =
-                await this.createSessionTokens(user);
+            const { refreshToken } = await this.createSessionTokens(user);
 
             // Delete Old Refresh Token
             await this.tokenService.deleteRefreshToken(Number(req.auth.id));
