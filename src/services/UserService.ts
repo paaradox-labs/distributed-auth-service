@@ -70,6 +70,9 @@ export class UserService {
                 role: true,
                 password: true,
             },
+            relations: {
+                tenant: true,
+            },
         });
     }
 
