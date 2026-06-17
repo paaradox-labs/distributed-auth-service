@@ -14,7 +14,11 @@ export const globalErrorHandler = (
     const statusCode = err.status || 500;
 
     const isProduction = process.env.NODE_ENV === "production";
-    const message = isProduction ? "Internal server error" : err.message;
+    let message = "Internal Server Error";
+
+    if (statusCode === 400) {
+        message = err.message;
+    }
 
     logger.error(err.message, {
         id: errorId,
