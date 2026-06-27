@@ -47,7 +47,7 @@ This service fits a microservices architecture: public registration and login, c
 - **Code quality**: ESLint, Prettier
 - **Process management**: Nodemon
 - **Package manager**: pnpm
-- **Containerization**: Docker, Docker Compose
+- **Containerization**: Docker
 - **CI/CD**: GitHub Actions
 - **Code analysis**: SonarQube
 
@@ -84,7 +84,7 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_USERNAME=root
 DB_PASSWORD=root
-DB_NAME=auth_db
+DB_NAME=mernstack_auth_service
 REFRESH_TOKEN_SECRET=your-refresh-token-secret
 JWKS_URI=http://localhost:5501/.well-known/jwks.json
 ```
@@ -100,6 +100,11 @@ node scripts/generateKeys.mjs
 ```bash
 pnpm run docker:db
 ```
+
+> **Troubleshooting:** If you have a native PostgreSQL running on macOS, it may occupy port 5432 and prevent connecting to the Docker container. Stop it with:
+> ```bash
+> brew services stop postgresql
+> ```
 
 6. Apply database migrations:
 
@@ -303,7 +308,9 @@ Winston writes under `logs/` (e.g. error and combined logs), with level driven b
 
 - **`docker/prod/Dockerfile`**: Production-optimized Node 24 image
 - **`docker/dev/Dockerfile`**: Development container with hot reload
-- **`docker:db`**: local PostgreSQL for development
+- **`docker:db`**: local PostgreSQL for development (creates a `mernpg-container` with database `mernstack_auth_service`)
+
+> If a native PostgreSQL is already running on your Mac, stop it first to avoid port conflicts: `brew services stop postgresql`
 
 ## 🤝 Contributing
 
