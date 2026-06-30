@@ -1,4 +1,4 @@
-# Auth Service
+# MERN Space - Auth Service
 
 A robust authentication and user-management microservice built with Node.js, Express, TypeScript, and PostgreSQL. It supports **multi-tenant** organizations, JWT-based sessions with access and refresh tokens, and **role-based** admin APIs for tenants and users.
 
