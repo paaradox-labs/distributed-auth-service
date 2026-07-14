@@ -102,6 +102,7 @@ pnpm run docker:db
 ```
 
 > **Troubleshooting:** If you have a native PostgreSQL running on macOS, it may occupy port 5432 and prevent connecting to the Docker container. Stop it with:
+>
 > ```bash
 > brew services stop postgresql
 > ```
