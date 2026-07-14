@@ -9,6 +9,7 @@ import createHttpError from "http-errors";
 import type { CredentialService } from "../services/CredentialService.js";
 import { Roles } from "../constants/index.js";
 import type { User } from "../entity/User.js";
+import { Config } from "../config/index.js";
 
 export class AuthController {
     constructor(
@@ -36,14 +37,14 @@ export class AuthController {
         refreshToken: string,
     ) {
         res.cookie("accessToken", accessToken, {
-            domain: "localhost",
+            domain: Config.MAIN_DOMAIN,
             sameSite: "strict",
             maxAge: 1000 * 60 * 60 * 24 * 1, // 1d
             httpOnly: true, // Important
         });
 
         res.cookie("refreshToken", refreshToken, {
-            domain: "localhost",
+            domain: Config.MAIN_DOMAIN,
             sameSite: "strict",
             maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
             httpOnly: true, // Important
