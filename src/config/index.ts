@@ -23,7 +23,8 @@ const {
     REFRESH_TOKEN_SECRET,
     JWKS_URI,
     PRIVATE_KEY,
-    FRONTEND_URL,
+    CLIENT_UI_DOMAIN,
+    ADMIN_UI_DOMAIN,
 } = process.env;
 
 /** Enables TLS for Postgres when the server rejects non-SSL connections (common for hosted DBs in CI). */
@@ -61,5 +62,6 @@ export const Config = {
     REFRESH_TOKEN_SECRET,
     JWKS_URI,
     PRIVATE_KEY,
-    FRONTEND_URL,
+    CLIENT_UI_DOMAIN,
+    ADMIN_UI_DOMAIN,
 };

@@ -2,19 +2,20 @@ import "reflect-metadata";
 
 import express, { type Express } from "express";
 
-import cors from "cors";
-
 import authRouter from "./routes/auth.js";
 import tenantRouter from "./routes/tenant.js";
 import cookieParser from "cookie-parser";
 import userRouter from "./routes/user.js";
 import { Config } from "./config/index.js";
 import { globalErrorHandler } from "./middlewares/globalErrorHandler.js";
+import cors from "cors";
 
 const app: Express = express();
+const ALLOWED_DOMAINS = [Config.CLIENT_UI_DOMAIN, Config.ADMIN_UI_DOMAIN];
+
 app.use(
     cors({
-        origin: [Config.FRONTEND_URL!],
+        origin: ALLOWED_DOMAINS as string[],
         credentials: true,
     }),
 );
