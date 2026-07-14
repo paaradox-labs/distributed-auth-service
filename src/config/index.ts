@@ -25,6 +25,7 @@ const {
     PRIVATE_KEY,
     CLIENT_UI_DOMAIN,
     ADMIN_UI_DOMAIN,
+    MAIN_DOMAIN,
 } = process.env;
 
 /** Enables TLS for Postgres when the server rejects non-SSL connections (common for hosted DBs in CI). */
@@ -64,4 +65,5 @@ export const Config = {
     PRIVATE_KEY,
     CLIENT_UI_DOMAIN,
     ADMIN_UI_DOMAIN,
+    MAIN_DOMAIN,
 };
