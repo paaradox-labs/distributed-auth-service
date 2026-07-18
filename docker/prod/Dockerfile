@@ -1,6 +1,6 @@
 ARG NODE_VERSION=24.18.0
 
-FROM node:${NODE_VERSION}-alpine as builder
+FROM node:${NODE_VERSION}-alpine AS builder
 
 RUN corepack enable && corepack prepare pnpm@11 --activate
 
@@ -8,14 +8,14 @@ WORKDIR /home/node/app
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install --frozen-lockfile
+RUN HUSKY=0 pnpm install --frozen-lockfile
 
 COPY . .
 
 RUN pnpm run build
 
 
-FROM node:${NODE_VERSION}-alpine as runner
+FROM node:${NODE_VERSION}-alpine AS runner
 
 RUN corepack enable && corepack prepare pnpm@11 --activate
 
@@ -29,7 +29,7 @@ ENV NODE_ENV=production
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+RUN HUSKY=0 pnpm install --frozen-lockfile --prod --ignore-scripts
 
 COPY --from=builder --chown=node:node /home/node/app/dist ./
 
