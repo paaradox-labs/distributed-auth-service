@@ -1,6 +1,8 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddRefreshtokenCascade1699475145577 implements MigrationInterface {
+    name = "CascadeFix1775732614435";
+
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
             `ALTER TABLE "refreshTokens" DROP CONSTRAINT "FK_265bec4e500714d5269580a0219"`,
