@@ -1,48 +1,43 @@
-FROM node:24-alpine AS builder
+ARG NODE_VERSION=24.18.0
 
-RUN apk update && apk upgrade --no-cache
+FROM node:${NODE_VERSION}-alpine as builder
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-ENV COREPACK_ENABLE_AUTO_PIN=0
-RUN corepack enable
 
-WORKDIR /app
+WORKDIR /home/node/app
 
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-COPY .npmrc ./
-COPY pnpm.config.mjs ./
 
-RUN pnpm install --frozen-lockfile --ignore-scripts --config.minimum-release-age=0
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm ci
+
 
 COPY . .
 
-RUN ./node_modules/.bin/tsc -p tsconfig.json
+
+RUN npm run build
 
 
-FROM node:24-alpine AS production
+FROM node:${NODE_VERSION}-alpine as runner
 
-RUN apk update && apk upgrade --no-cache
+USER node
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-ENV COREPACK_ENABLE_AUTO_PIN=0
-RUN corepack enable
+RUN mkdir -p /home/node/app
+
+WORKDIR /home/node/app
 
 ENV NODE_ENV=production
 
-WORKDIR /app
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm ci --omit=dev --ignore-scripts
 
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-COPY .npmrc ./
-COPY pnpm.config.mjs ./
 
-RUN pnpm install --frozen-lockfile --ignore-scripts --config.minimum-release-age=0
+COPY --from=builder --chown=node:node /home/node/app/dist ./
 
-COPY --from=builder /app/dist ./
+EXPOSE 5501
 
-EXPOSE 5500
+
 
 CMD ["node", "src/server.js"]
