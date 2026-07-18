@@ -61,6 +61,81 @@ describe("GET /tenants and GET /tenants/:id", () => {
                 address: "1 Main St",
             });
         });
+
+        it("should filter tenants by search query", async () => {
+            const tenantRepository = connection.getRepository(Tenant);
+            await tenantRepository.save({
+                name: "Acme Corp",
+                address: "1 Main St",
+            });
+            await tenantRepository.save({
+                name: "Beta Inc",
+                address: "2 Oak Ave",
+            });
+
+            const response = await request(app)
+                .get("/tenants")
+                .query({ q: "Acme" })
+                .send();
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.data).toHaveLength(1);
+            expect(response.body.data[0].name).toBe("Acme Corp");
+        });
+
+        it("should use default pagination when currentPage and perPage are not provided", async () => {
+            const tenantRepository = connection.getRepository(Tenant);
+            await tenantRepository.save({
+                name: "Tenant One",
+                address: "Addr 1",
+            });
+
+            const response = await request(app).get("/tenants").send();
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.currentPage).toBe(1);
+            expect(response.body.perPage).toBe(6);
+        });
+
+        it("should handle empty search query", async () => {
+            const tenantRepository = connection.getRepository(Tenant);
+            await tenantRepository.save({
+                name: "Acme Corp",
+                address: "1 Main St",
+            });
+            await tenantRepository.save({
+                name: "Beta Inc",
+                address: "2 Oak Ave",
+            });
+
+            const response = await request(app)
+                .get("/tenants")
+                .query({ q: "" })
+                .send();
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.data).toHaveLength(2);
+        });
+
+        it("should accept explicit pagination params", async () => {
+            const tenantRepository = connection.getRepository(Tenant);
+            for (let i = 1; i <= 5; i++) {
+                await tenantRepository.save({
+                    name: `Tenant ${i}`,
+                    address: `Addr ${i}`,
+                });
+            }
+
+            const response = await request(app)
+                .get("/tenants")
+                .query({ currentPage: "1", perPage: "2" })
+                .send();
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body.data).toHaveLength(2);
+            expect(response.body.currentPage).toBe(1);
+            expect(response.body.perPage).toBe(2);
+        });
     });
 
     describe("GET /tenants/:id", () => {

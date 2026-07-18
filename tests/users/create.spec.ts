@@ -34,6 +34,61 @@ describe("Create routes", () => {
 
     describe("POST /users", () => {
         describe("Given all fields", () => {
+            it("should allow creating an admin user without tenantId", async () => {
+                const adminToken = jwks.token({
+                    sub: "1",
+                    role: Roles.ADMIN,
+                });
+
+                const userData = {
+                    firstName: "Admin",
+                    lastName: "User",
+                    email: "admin@example.com",
+                    password: "Admin@123",
+                    role: Roles.ADMIN,
+                };
+
+                const response = await request(app)
+                    .post("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send(userData);
+
+                expect(response.status).toBe(201);
+
+                const userRepository = connection.getRepository(User);
+                const users = await userRepository.find();
+                expect(users).toHaveLength(1);
+                expect(users[0]?.role).toBe(Roles.ADMIN);
+            });
+
+            it("should return 400 when tenantId is not a positive integer", async () => {
+                const adminToken = jwks.token({
+                    sub: "1",
+                    role: Roles.ADMIN,
+                });
+
+                const userData = {
+                    firstName: "Bad",
+                    lastName: "Tenant",
+                    email: "badtenant@example.com",
+                    password: "Password1!",
+                    tenantId: -1,
+                    role: Roles.MANAGER,
+                };
+
+                const response = await request(app)
+                    .post("/users")
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send(userData);
+
+                expect(response.status).toBe(400);
+
+                const userRepository = connection.getRepository(User);
+                const users = await userRepository.find();
+                expect(users).toHaveLength(0);
+            });
+        });
+        describe("Given all fields", () => {
             it("should persist the user in the database", async () => {
                 const tenant = await createTenant(
                     connection.getRepository(Tenant),

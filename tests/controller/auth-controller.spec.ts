@@ -150,6 +150,48 @@ describe("AuthController catch paths and refresh guard", () => {
         expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
 
+    it("refresh includes tenant in payload when user has a tenant", async () => {
+        const userService = {
+            findById: mockFn().mockResolvedValue({
+                id: 1,
+                role: "manager",
+                tenant: { id: 5 },
+                firstName: "Test",
+                lastName: "User",
+                email: "test@example.com",
+            }),
+        } as unknown as UserService;
+        const tokenService = {
+            generateAccessToken: mockFn().mockReturnValue("token"),
+            persistRefreshToken: mockFn().mockResolvedValue({ id: "123" }),
+            generateRefreshToken: mockFn().mockReturnValue("refresh"),
+            deleteRefreshToken: mockFn(),
+        } as unknown as Tokenservice;
+        const credentialService = {} as unknown as CredentialService;
+
+        const controller = new AuthController(
+            userService,
+            logger,
+            tokenService,
+            credentialService,
+        );
+        const next = jest.fn();
+        const res = mockRes();
+
+        await controller.refresh(
+            {
+                auth: { sub: "1", role: "manager", id: "1" },
+            } as Parameters<AuthController["refresh"]>[0],
+            res,
+            next,
+        );
+
+        expect(tokenService.generateAccessToken).toHaveBeenCalledWith(
+            expect.objectContaining({ tenant: "5" }),
+        );
+        expect(res.json).toHaveBeenCalledWith({ id: 1 });
+    });
+
     it("logout forwards errors to next", async () => {
         const userService = {} as unknown as UserService;
         const tokenService = {
