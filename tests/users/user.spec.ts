@@ -423,6 +423,102 @@ describe("Auth routes", () => {
                     "two@example.com",
                 ]);
             });
+
+            it("should filter users by search query", async () => {
+                const userRepository = connection.getRepository(User);
+                await userRepository.save({
+                    firstName: "Alice",
+                    lastName: "Smith",
+                    email: "alice@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.CUSTOMER,
+                });
+                await userRepository.save({
+                    firstName: "Bob",
+                    lastName: "Jones",
+                    email: "bob@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .get("/users")
+                    .query({ q: "Alice" })
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect(response.body.data).toHaveLength(1);
+                expect(response.body.data[0].email).toBe("alice@example.com");
+            });
+
+            it("should filter users by role", async () => {
+                const userRepository = connection.getRepository(User);
+                await userRepository.save({
+                    firstName: "Charlie",
+                    lastName: "Brown",
+                    email: "charlie@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.CUSTOMER,
+                });
+                await userRepository.save({
+                    firstName: "Diana",
+                    lastName: "Prince",
+                    email: "diana@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .get("/users")
+                    .query({ role: Roles.MANAGER })
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect(response.body.data).toHaveLength(1);
+                expect(response.body.data[0].email).toBe("diana@example.com");
+            });
+
+            it("should handle empty role filter", async () => {
+                const userRepository = connection.getRepository(User);
+                await userRepository.save({
+                    firstName: "Test",
+                    lastName: "User",
+                    email: "test@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.CUSTOMER,
+                });
+
+                const response = await request(app)
+                    .get("/users")
+                    .query({ role: "" })
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect(response.body.data).toHaveLength(1);
+            });
+
+            it("should accept pagination params for user listing", async () => {
+                const userRepository = connection.getRepository(User);
+                for (let i = 1; i <= 3; i++) {
+                    await userRepository.save({
+                        firstName: `User${i}`,
+                        lastName: "Test",
+                        email: `user${i}@example.com`,
+                        password: await bcrypt.hash("Password1!", 10),
+                        role: Roles.CUSTOMER,
+                    });
+                }
+
+                const response = await request(app)
+                    .get("/users")
+                    .query({ currentPage: "1", perPage: "2" })
+                    .set("Cookie", [`accessToken=${adminToken}`]);
+
+                expect(response.status).toBe(200);
+                expect(response.body.data).toHaveLength(2);
+                expect(response.body.currentPage).toBe(1);
+                expect(response.body.perPage).toBe(2);
+            });
         });
 
         describe("GET /users/:id", () => {
@@ -560,6 +656,100 @@ describe("Auth routes", () => {
                     (response.body as { errors?: { msg?: string }[] })
                         .errors?.[0]?.msg,
                 ).toBe("Invalid URL Param");
+            });
+
+            it("should allow updating a user to admin role without tenantId", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "Old",
+                    lastName: "Name",
+                    email: "to-admin@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .patch(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        firstName: "New",
+                        lastName: "Admin",
+                        role: "admin",
+                        email: "to-admin@example.com",
+                    });
+
+                expect(response.status).toBe(200);
+            });
+
+            it("should return 400 when tenantId is missing for non-admin role", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "Old",
+                    lastName: "Name",
+                    email: "no-tenant@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .patch(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        firstName: "New",
+                        lastName: "Name",
+                        role: Roles.MANAGER,
+                        email: "no-tenant@example.com",
+                    });
+
+                expect(response.status).toBe(400);
+            });
+
+            it("should return 400 when tenantId is not a positive integer", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "Old",
+                    lastName: "Name",
+                    email: "invalid-tenant@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .patch(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        firstName: "New",
+                        lastName: "Name",
+                        role: Roles.MANAGER,
+                        email: "invalid-tenant@example.com",
+                        tenantId: -5,
+                    });
+
+                expect(response.status).toBe(400);
+            });
+
+            it("should sanitize NaN tenantId to undefined for admin role", async () => {
+                const userRepository = connection.getRepository(User);
+                const saved = await userRepository.save({
+                    firstName: "Old",
+                    lastName: "Name",
+                    email: "nan-tenant@example.com",
+                    password: await bcrypt.hash("Password1!", 10),
+                    role: Roles.MANAGER,
+                });
+
+                const response = await request(app)
+                    .patch(`/users/${saved.id}`)
+                    .set("Cookie", [`accessToken=${adminToken}`])
+                    .send({
+                        firstName: "New",
+                        lastName: "Name",
+                        role: "admin",
+                        email: "nan-tenant@example.com",
+                        tenantId: "not-a-number",
+                    });
+
+                expect(response.status).toBe(200);
             });
         });
 
