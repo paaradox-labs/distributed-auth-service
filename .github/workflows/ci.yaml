@@ -47,6 +47,9 @@ jobs:
             - name: Install dependencies
               run: pnpm install --frozen-lockfile --ignore-scripts
 
+            - name: Generate RSA keys for JWT signing
+              run: node scripts/generateKeys.mjs
+
             - name: Run eslint
               run: pnpm run lint:fix
 

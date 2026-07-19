@@ -6,6 +6,10 @@ import { User } from "../entity/User.js";
 import type { Repository } from "typeorm";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export class Tokenservice {
     constructor(
@@ -16,7 +20,7 @@ export class Tokenservice {
 
         try {
             privateKey = fs.readFileSync(
-                path.join(__dirname, "../../certs/private.pm"),
+                path.join(__dirname, "../../certs/private.pem"),
             );
         } catch {
             const error = createHttpError(
