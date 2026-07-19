@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import fs from "fs";
+import rsaPemToJwk from "rsa-pem-to-jwk";
 
 fs.mkdirSync("certs", { recursive: true });
 
