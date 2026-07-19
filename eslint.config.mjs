@@ -15,6 +15,7 @@ export default defineConfig(
             "package-lock.json",
             "*.spec.ts",
             "test",
+            "scripts",
         ],
     },
     {
