@@ -29,7 +29,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", async (req, res) => {
-    res.status(200).send("Welcome to Authentication Page");
+    res.status(200).send("Welcome to Authentication Page from K8s");
 });
 
 app.use("/auth", authRouter);
