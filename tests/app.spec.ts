@@ -6,6 +6,6 @@ describe("app", () => {
         const response = await request(app).get("/").send();
 
         expect(response.statusCode).toBe(200);
-        expect(response.text).toBe("Welcome to Authentication Page");
+        expect(response.text).toBe("Welcome to Authentication Page from K8s");
     });
 });
