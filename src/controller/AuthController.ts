@@ -36,18 +36,23 @@ export class AuthController {
         accessToken: string,
         refreshToken: string,
     ) {
+        const secure = Config.NODE_ENV === "production";
+        const sameSite = secure ? "none" : "strict";
+
         res.cookie("accessToken", accessToken, {
             domain: Config.MAIN_DOMAIN,
-            sameSite: "strict",
+            sameSite,
+            secure,
             maxAge: 1000 * 60 * 60 * 24 * 1, // 1d
-            httpOnly: true, // Important
+            httpOnly: true,
         });
 
         res.cookie("refreshToken", refreshToken, {
             domain: Config.MAIN_DOMAIN,
-            sameSite: "strict",
+            sameSite,
+            secure,
             maxAge: 1000 * 60 * 60 * 24 * 365, // 1y
-            httpOnly: true, // Important
+            httpOnly: true,
         });
     }
 
@@ -229,8 +234,15 @@ export class AuthController {
             this.logger.info("User has been logged out.", {
                 id: req.auth.sub,
             });
-            res.clearCookie("accessToken");
-            res.clearCookie("refreshToken");
+            const secure = Config.NODE_ENV === "production";
+            res.clearCookie("accessToken", {
+                domain: Config.MAIN_DOMAIN,
+                secure,
+            });
+            res.clearCookie("refreshToken", {
+                domain: Config.MAIN_DOMAIN,
+                secure,
+            });
 
             res.json({});
         } catch (error) {
